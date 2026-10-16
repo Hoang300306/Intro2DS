@@ -1,0 +1,8 @@
+# split files live in GitHub Releases, never in git
+*.lmdb
+*.pt
+*.ckpt
+splits/*.json
+!splits/MANIFEST.json
+__pycache__/
+.DS_Store

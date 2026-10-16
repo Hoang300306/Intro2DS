@@ -1,0 +1,102 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Intro2DS stage summary",
+  "description": "summary.json, one per scoring or training stage directory",
+  "type": "object",
+  "required": ["model", "assignee_id", "stage", "environment", "code", "run", "results"],
+  "additionalProperties": false,
+  "properties": {
+    "model": {"type": "string"},
+    "assignee_id": {"type": "string"},
+    "stage": {"enum": ["stage1_env", "stage2_reproduce", "stage3_smoke",
+                       "stage4_taskB", "stage5_taskC"]},
+    "environment": {
+      "type": "object",
+      "required": ["python", "torch", "cuda", "gpu", "lockfile"],
+      "properties": {
+        "python": {"type": "string"},
+        "torch": {"type": "string"},
+        "cuda": {"type": "string"},
+        "gpu": {"type": "string", "description": "as nvidia-smi names it, plus memory"},
+        "lockfile": {"type": "string", "description": "path to the lockfile in stage1_env/"},
+        "notes": {"type": "string"}
+      }
+    },
+    "code": {
+      "type": "object",
+      "required": ["upstream_url", "upstream_commit", "changes_diff_sha256", "changes_justified"],
+      "properties": {
+        "upstream_url": {"type": "string"},
+        "upstream_commit": {"type": "string", "minLength": 7},
+        "changes_diff_sha256": {"type": "string", "description": "sha256 of code/changes.diff; empty diff is fine"},
+        "changes_justified": {"type": "boolean", "description": "true if every hunk is justified in REPORT.md"}
+      }
+    },
+    "run": {
+      "type": "object",
+      "required": ["seed", "checkpoint_rule", "command_file", "wall_clock_hours", "gpu_hours"],
+      "properties": {
+        "seed": {"type": "integer"},
+        "checkpoint_rule": {"enum": ["best", "avg_last10", "last", "other"]},
+        "checkpoint_rule_source": {"type": "string", "description": "where upstream states it"},
+        "checkpoint_sha256": {"type": "string"},
+        "epochs": {"type": "integer"},
+        "batch_size": {"type": "integer"},
+        "update_freq": {"type": "integer"},
+        "command_file": {"type": "string", "description": "path to code/run.sh"},
+        "wall_clock_hours": {"type": "number"},
+        "gpu_hours": {"type": "number"}
+      }
+    },
+    "training_data": {
+      "type": "object",
+      "description": "required for stage4 and stage5",
+      "properties": {
+        "split_id": {"type": "string", "description": "for stage5; 'released' for stage4"},
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["path", "sha256"],
+            "properties": {"path": {"type": "string"}, "sha256": {"type": "string"},
+                           "n_rows": {"type": "integer"}, "n_groups": {"type": "integer"}}
+          }
+        }
+      }
+    },
+    "results": {
+      "type": "array",
+      "description": "one entry per benchmark; per-target values go in per_target.csv",
+      "items": {
+        "type": "object",
+        "required": ["benchmark", "n_targets", "per_target_csv", "metrics"],
+        "properties": {
+          "benchmark": {"type": "string"},
+          "n_targets": {"type": "integer"},
+          "per_target_csv": {"type": "string"},
+          "metrics": {
+            "type": "object",
+            "description": "means over targets, as the upstream script reports them",
+            "properties": {
+              "auroc": {"type": "number"}, "bedroc": {"type": "number"},
+              "ef_0.005": {"type": "number"}, "ef_0.01": {"type": "number"},
+              "ef_0.02": {"type": "number"}, "ef_0.05": {"type": "number"}
+            }
+          },
+          "published_reference": {
+            "type": "object",
+            "description": "stage2 only: the paper's number and where it is stated",
+            "properties": {"metric": {"type": "string"}, "value": {"type": "number"},
+                           "source": {"type": "string"},
+                           "relative_gap_pct": {"type": "number"}}
+          }
+        }
+      }
+    },
+    "problems": {
+      "type": "array",
+      "description": "anything that did not work; an honest non-reproduction is a valid result",
+      "items": {"type": "string"}
+    }
+  }
+}

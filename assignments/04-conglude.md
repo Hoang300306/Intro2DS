@@ -1,98 +1,136 @@
-# Assignment 04-conglude — ConGLUDe
+# 04-conglude — ConGLUDe
 
-**Model:** ConGLUDe (ICML 2026)
-**Upstream repository:** https://github.com/ml-jku/conglude
-**Released artifacts:** training data on Zenodo (record 20354834); checkpoint under checkpoints/
-**Benchmarks to evaluate on:** whatever the paper reports; list them in your report
+| | |
+|---|---|
+| **Model** | ConGLUDe (ICML 2026) |
+| **Upstream repository** | https://github.com/ml-jku/conglude |
+| **Benchmarks** | the benchmarks the paper reports; list them explicitly in your report |
+| **Your directory** | `submissions/04-conglude/` |
+| **Your branch** | `sub/04-conglude` |
 
-You are one of several people each working on a different published model. You do not need to know
-anything about the others, and nothing in this sheet depends on them.
+You are one of several people, each on a different model. Nothing here depends on anyone else.
 
 ## What this study is
 
-We are measuring two things about published structure-based virtual screening models: how well the
-reported numbers reproduce from the released artifacts, and how sensitive those numbers are to the
-exact composition of the training set. Your job is to produce trustworthy numbers for ConGLUDe. The
-interpretation is not your problem — accuracy and honest reporting are.
+We are measuring two things about published virtual-screening models: how well their reported
+numbers reproduce from the released artifacts, and how sensitive those numbers are to the exact
+composition of the training set. Your job is to produce **trustworthy numbers** for ConGLUDe.
+Interpretation is not your problem; accuracy and honest reporting are.
 
-## Your directory
+## Released artifacts
 
-```
-submissions/04-conglude/
-```
+Training data on Zenodo (record 20354834) — the archives `LB_train_val.zip` and `SB_train_val.zip`. A checkpoint is under `checkpoints/` in the repository.
 
-Copy it from `submissions/_TEMPLATE`, work on branch `sub/04-conglude`, and open a pull request for each
-stage. Read [`../CONTRACT.md`](../CONTRACT.md) before you start; it is short.
+## What we already checked for you
 
-## Stage 1 — environment
+Nothing about the internal file layout is confirmed yet: the Zenodo archives are still being retrieved on our side. The repository and the Zenodo record are confirmed to exist, with the file list above.
 
-Build the environment the repository asks for. Commit to `stage1_env/`:
+## Notes specific to this model
 
-- `environment.yml` or `requirements.txt` — the **resolved** versions, not the loose spec
-- `nvidia-smi.txt` — the output, verbatim
-- `import_test.txt` — output of importing the model package and printing `torch.__version__`,
-  `torch.version.cuda`, `torch.cuda.is_available()`
+**Your checkpoint C will be assigned later than the others**, because we are still preparing this corpus. Checkpoints A and B need nothing from us, so start on those now and do not wait. When you reach A1, tell us in your report which training files the repository actually reads — that is useful to us and it is the fastest way to get your C variants built correctly.
 
-Then produce `code/frozen.sha256`: a `sha256sum` listing of the files that compute metrics and load
-benchmarks. For this repository that means the evaluation entry point and its metric computation. Err on the side of listing too many.
-**Generate this once, at stage 1, and never regenerate it** — CI uses it to detect whether the
-evaluation path moved under your feet.
+---
 
-Cost: no GPU time.
+# Checkpoint A — environment, reproduction, smoke train
 
-## Stage 2 — reproduce the published numbers  ← hard gate
+**One pull request containing all three parts.** Total cost: under one GPU-hour. Nothing expensive
+happens until this is merged.
+
+## A1 — environment  → `A1_env/`
+
+Build the environment the repository asks for, then commit:
+
+| file | content |
+|---|---|
+| `environment.yml` or `requirements.txt` | the **resolved** versions, not the loose spec |
+| `nvidia-smi.txt` | the output, verbatim |
+| `import_test.txt` | importing the model package, then printing `torch.__version__`, `torch.version.cuda`, `torch.cuda.is_available()` |
+| `summary.json` | `stage` = `"A1_env"` |
+
+Then produce `code/frozen.sha256` — a `sha256sum` listing of the files that compute metrics and load
+benchmarks. For this repository that means the evaluation entry point and its metric computation. Err on the side of listing too many files.
+
+**Generate it once, here, and never regenerate it.** CI uses it to detect whether the evaluation
+path moved under your feet between checkpoints.
+
+## A2 — reproduce the published numbers  → `A2_reproduce/`   ← hard gate
 
 Score the **released checkpoint** on the benchmarks above, using the repository's own evaluation
 script, unmodified.
 
-Then find the corresponding number **in the paper**, and record in `summary.json` under
-`published_reference`: the metric, the value, where it is stated (table or section), and your
+Then find the matching number **in the paper** and record, in `summary.json` under
+`published_reference`: the metric, its value, **which table or section it comes from**, and your
 relative gap.
 
-**The gate is 10 % relative on the headline metric.** Outside that, open an issue with your evidence
-and stop — do not proceed to stage 3. A documented non-reproduction is a real result for this study
-and is not a failure on your part.
+**The gate is 10 % relative on the headline metric.** Outside that: open an issue with your evidence
+and stop. Do not go on to A3. A documented non-reproduction is a real result and is not your fault.
 
-Deliver: `stage2_reproduce/summary.json`, `stage2_reproduce/per_target.csv` (one row per target —
-see the contract, this is not optional), `stage2_reproduce/log.txt`.
+Deliver `summary.json`, `per_target.csv` (one row per target — see contract rule 3, this is not
+optional) and `log.txt`.
 
-Cost: GPU-minutes.
+## A3 — smoke train, and the cost estimate  → `A3_smoke/`
 
-## Stage 3 — smoke train  ← review gate
+Train for **one epoch on a small subset** — a few hundred training groups is plenty. The point is
+not a useful model. The point is proof that the training path runs end to end on your machine,
+writes a checkpoint, and that the checkpoint loads again.
 
-Train for **one epoch on a small subset** (a few hundred training groups is plenty). The point is
-not a useful model; it is proof that the training path runs end to end on your machine, writes a
-checkpoint, and that the checkpoint loads.
+Deliver `summary.json`, `log.txt`, and in `REPORT.md`:
 
-Deliver: `stage3_smoke/summary.json`, `stage3_smoke/log.txt`, and in `REPORT.md` the time for one
-epoch plus your **extrapolated cost for the full run**. We budget the expensive stages from that
-number, so think about it rather than guessing.
+- how long one epoch took, on what subset
+- **your extrapolated cost for checkpoint B, and for each variant in checkpoint C**
+- what you extrapolated from
 
-Cost: under one GPU-hour. **Stop here and wait for your pull request to be merged.**
+We approve the expensive runs from that estimate. A careless guess here gets your run either blocked
+or wasted.
 
-## Stage 4 — full retrain on the released training data
+**Then stop. Open the pull request and wait for it to be merged.**
 
-Only after stage 3 is merged. Retrain from scratch on the **released** training data with the
-released configuration, fixed seed, and the checkpoint selection rule the repository specifies.
+---
 
-This is the baseline the next stage is compared against, so it is half the measurement, not a
+# Checkpoint B — retrain on the released training data  → `B_retrain_released/`
+
+Only after checkpoint A is merged.
+
+Retrain from scratch on the **released** training data, with the released configuration, a fixed
+seed, and the checkpoint selection rule the repository specifies (contract rule 4).
+
+This is the baseline that checkpoint C is compared against. It is half the measurement, not a
 formality.
 
-Deliver: `stage4_taskB/summary.json` (with `training_data.split_id = "released"`),
-`per_target.csv`, `log.txt`, and the checkpoint's SHA256.
+Deliver `summary.json` with `training_data.split_id = "released"`, `per_target.csv`, `log.txt`, and
+the checkpoint's SHA256.
 
-## Stage 5 — retrain on the supplied training-set variants
+In `REPORT.md`, say how your retrained model compares to the released checkpoint you scored at A2.
+They are usually **not** identical, and that difference is worth recording rather than hiding.
 
-We will give you one or more training-set variants as drop-in replacements for the released training
-files, with a manifest of SHA256 digests. For each one: retrain with **the same seed, the same
-configuration and the same checkpoint rule as stage 4**, changing nothing but the input files.
+---
 
-Verify the digests of what you received and record them. CI checks them against the manifest.
+# Checkpoint C — retrain on the supplied variants  → `C_retrain_variants/<variant_id>/`
 
-Deliver one subdirectory per variant under `stage5_taskC/`, each with `summary.json`,
-`per_target.csv` and `log.txt`.
+Only after checkpoint B is merged.
 
-## What makes this submission good
+You will receive these variants:
 
-Per-target numbers, an empty or fully justified diff, one seed throughout, a stated checkpoint rule,
-and an honest `Problems` section. Not a flattering number.
+- `conglude_ligandish`
+- `conglude_ligandish_matched`
+
+Each variant is a drop-in replacement for TO BE CONFIRMED — the exact training file names will be in the variant manifest before checkpoint C is assigned to you.
+
+For every variant:
+
+1. **Verify the digests first.** `sha256sum` each file you received and compare against
+   `splits/MANIFEST.json`. CI checks the digests you record. A run on the wrong input is worse than
+   no run, because it looks valid.
+2. Retrain with **the same seed, configuration, checkpoint rule and code as checkpoint B**. The
+   input file is the only thing that changes (contract rule 6).
+3. Deliver `C_retrain_variants/<variant_id>/` containing `summary.json` (with `training_data` filled
+   in), `per_target.csv` and `log.txt`.
+
+---
+
+## What makes a good submission
+
+Per-target numbers. An empty or fully justified diff. One seed throughout. A stated checkpoint rule
+with its source. An honest `Problems` section.
+
+Not a flattering number.

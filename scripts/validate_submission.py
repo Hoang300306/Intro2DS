@@ -21,8 +21,12 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 SCHEMA = json.load(open(ROOT / "report_schema.json"))
 PER_TARGET_COLS = ["target_id", "n_actives", "n_total", "auroc", "bedroc",
                    "ef_0.005", "ef_0.01", "ef_0.02", "ef_0.05"]
-SCORING = {"stage2_reproduce", "stage4_taskB", "stage5_taskC"}
-ORDER = ["stage1_env", "stage2_reproduce", "stage3_smoke", "stage4_taskB", "stage5_taskC"]
+SCORING = {"A2_reproduce", "B_retrain_released", "C_retrain_variants"}
+ORDER = ["A1_env", "A2_reproduce", "A3_smoke", "B_retrain_released", "C_retrain_variants"]
+# the three review points; everything in CHECKPOINTS["A"] lands in one pull request
+CHECKPOINTS = {"A": ["A1_env", "A2_reproduce", "A3_smoke"],
+               "B": ["B_retrain_released"],
+               "C": ["C_retrain_variants"]}
 
 
 class Problems(list):
@@ -141,7 +145,7 @@ def validate(sub: pathlib.Path) -> Problems:
     # frozen-file fingerprint must be committed at stage 1 and never change afterwards
     frozen = sub / "code" / "frozen.sha256"
     if not frozen.exists():
-        pr.add("code", "code/frozen.sha256 is missing; generate it at stage 1 from the file list "
+        pr.add("code", "code/frozen.sha256 is missing; generate it at checkpoint A from the list "
                        "in your assignment and never regenerate it")
 
     def filled(d: pathlib.Path) -> bool:
@@ -149,20 +153,32 @@ def validate(sub: pathlib.Path) -> Problems:
 
     present = [s for s in ORDER if filled(sub / s)]
     if not present:
-        pr.add(sub.name, "no stage directory has any content yet")
+        pr.add(sub.name, "no checkpoint has any content yet")
     # stages must be filled in order -- no starting an expensive stage early
     for i, s in enumerate(ORDER):
         if s in present:
             for earlier in ORDER[:i]:
                 if earlier not in present:
-                    pr.add(s, f"filled before `{earlier}`; stages run in order")
+                    pr.add(s, f"filled before `{earlier}`; parts run in order")
+
+    # C holds one subdirectory per variant, so expand it into those subdirectories
+    units: list[tuple[str, pathlib.Path]] = []
+    for s in present:
+        if s == "C_retrain_variants":
+            subs = [x for x in sorted((sub / s).iterdir())
+                    if x.is_dir() and not x.name.startswith(".")]
+            if not subs:
+                pr.add(s, "no variant subdirectory; C_retrain_variants/<variant_id>/ per variant")
+            units += [(s, x) for x in subs]
+        else:
+            units.append((s, sub / s))
 
     seeds, rules = set(), set()
-    for s in present:
-        d = sub / s
+    for s, d in units:
         sfile = d / "summary.json"
         if not sfile.exists():
-            pr.add(s, "summary.json is missing"); continue
+            pr.add(f"{s}/{d.name}" if s == "C_retrain_variants" else s,
+                   "summary.json is missing"); continue
         try:
             summ = json.load(open(sfile))
         except Exception as e:
@@ -195,7 +211,7 @@ def validate(sub: pathlib.Path) -> Problems:
                     pr.add(s, f"per_target_csv `{ptc}` does not exist")
                 else:
                     validate_per_target(p, pr, s)
-            if s == "stage2_reproduce":
+            if s == "A2_reproduce":
                 for r in res:
                     ref = r.get("published_reference") or {}
                     if "relative_gap_pct" not in ref:
@@ -206,7 +222,7 @@ def validate(sub: pathlib.Path) -> Problems:
                         pr.add(s, f"{r.get('benchmark')}: reproduction is "
                                   f"{ref['relative_gap_pct']:+.1f} % from the published value, "
                                   "outside the 10 % gate -- open an issue instead of continuing")
-            if s == "stage5_taskC":
+            if s == "C_retrain_variants":
                 td = summ.get("training_data") or {}
                 if not td.get("split_id"):
                     pr.add(s, "training_data.split_id is required")
@@ -230,9 +246,9 @@ def validate(sub: pathlib.Path) -> Problems:
                     elif td["split_id"] != "released":
                         pr.add(s, f"split_id `{td['split_id']}` is not in splits/MANIFEST.json")
 
-    if len(seeds) > 1 and {"stage4_taskB", "stage5_taskC"} & set(present):
-        pr.add(sub.name, f"more than one seed across stages ({sorted(seeds)}); stage 4 and 5 must "
-                         "share a seed")
+    if len(seeds) > 1 and {"B_retrain_released", "C_retrain_variants"} & set(present):
+        pr.add(sub.name, f"more than one seed across stages ({sorted(seeds)}); checkpoints B "
+                         "and C must share a seed")
     if len(rules) > 1:
         pr.add(sub.name, f"inconsistent checkpoint_rule across stages ({sorted(rules)})")
     return pr

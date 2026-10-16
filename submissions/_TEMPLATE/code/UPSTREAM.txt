@@ -1,6 +1,6 @@
 # Fill both lines exactly. The commit SHA is what makes your run reconstructible.
-url    = https://github.com/<owner>/<repo>
-commit = <full 40-character SHA>
+url    = https://github.com/OWNER/REPO
+commit = FULL_40_CHARACTER_SHA
 
-# How you obtained it, if not a plain clone (a release tarball, a fork, a zip from the paper page):
+# How you got it, if not a plain clone (release tarball, fork, zip from the paper page):
 notes  =

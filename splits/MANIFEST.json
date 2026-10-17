@@ -1,1 +1,302 @@
-{}
+{
+  "bindclip_random_ligandish": {
+    "applies_to": [
+      "05-bindclip"
+    ],
+    "corpus": "bindclip_random",
+    "files": [
+      {
+        "content_digest": "1fff7a000582bbedd69ce2da9bd08f316619188d23d21811ac14bf2176b22813",
+        "format": "lmdb",
+        "n_records": 58857,
+        "n_rows": null,
+        "replaces_file": "train_with_hardneg_by_random.lmdb",
+        "source_content_digest": "a6241dbbed25dacdc8952b4aa4d2b221f996420f4a218a1d29b90b50a0c09d08",
+        "source_n_records": 66164,
+        "spec": "splits/specs/bindclip_random_ligandish/bindclip_random_ligandish.json.gz",
+        "spec_bytes": 17502
+      }
+    ],
+    "note": "Build this yourself with tools/apply_variant.py from the released training file you already have. The script verifies your copy against source_content_digest before writing anything, and its own output against content_digest afterwards. If either check fails, stop and open an issue.",
+    "replaces": "train_with_hardneg_by_random.lmdb (the random hard-negative version)"
+  },
+  "bindclip_random_ligandish_matched": {
+    "applies_to": [
+      "05-bindclip"
+    ],
+    "corpus": "bindclip_random",
+    "files": [
+      {
+        "content_digest": "e2f557ee068af3b1750825cb10caecacfa5907f06bc43b8b1d740b5da6cce909",
+        "format": "lmdb",
+        "n_records": 58857,
+        "n_rows": null,
+        "replaces_file": "train_with_hardneg_by_random.lmdb",
+        "source_content_digest": "a6241dbbed25dacdc8952b4aa4d2b221f996420f4a218a1d29b90b50a0c09d08",
+        "source_n_records": 66164,
+        "spec": "splits/specs/bindclip_random_ligandish_matched/bindclip_random_ligandish_matched.json.gz",
+        "spec_bytes": 17533
+      }
+    ],
+    "note": "Build this yourself with tools/apply_variant.py from the released training file you already have. The script verifies your copy against source_content_digest before writing anything, and its own output against content_digest afterwards. If either check fails, stop and open an issue.",
+    "replaces": "train_with_hardneg_by_random.lmdb (the random hard-negative version)"
+  },
+  "bindclip_unimol_ligandish": {
+    "applies_to": [
+      "05-bindclip"
+    ],
+    "corpus": "bindclip_unimol",
+    "files": [
+      {
+        "content_digest": "1fff7a000582bbedd69ce2da9bd08f316619188d23d21811ac14bf2176b22813",
+        "format": "lmdb",
+        "n_records": 58857,
+        "n_rows": null,
+        "replaces_file": "train_with_hardneg_by_unimol.lmdb",
+        "source_content_digest": "a6241dbbed25dacdc8952b4aa4d2b221f996420f4a218a1d29b90b50a0c09d08",
+        "source_n_records": 66164,
+        "spec": "splits/specs/bindclip_unimol_ligandish/bindclip_unimol_ligandish.json.gz",
+        "spec_bytes": 17522
+      }
+    ],
+    "note": "Build this yourself with tools/apply_variant.py from the released training file you already have. The script verifies your copy against source_content_digest before writing anything, and its own output against content_digest afterwards. If either check fails, stop and open an issue.",
+    "replaces": "train_with_hardneg_by_unimol.lmdb (the UniMol hard-negative version)"
+  },
+  "bindclip_unimol_ligandish_matched": {
+    "applies_to": [
+      "05-bindclip"
+    ],
+    "corpus": "bindclip_unimol",
+    "files": [
+      {
+        "content_digest": "e2f557ee068af3b1750825cb10caecacfa5907f06bc43b8b1d740b5da6cce909",
+        "format": "lmdb",
+        "n_records": 58857,
+        "n_rows": null,
+        "replaces_file": "train_with_hardneg_by_unimol.lmdb",
+        "source_content_digest": "a6241dbbed25dacdc8952b4aa4d2b221f996420f4a218a1d29b90b50a0c09d08",
+        "source_n_records": 66164,
+        "spec": "splits/specs/bindclip_unimol_ligandish_matched/bindclip_unimol_ligandish_matched.json.gz",
+        "spec_bytes": 17552
+      }
+    ],
+    "note": "Build this yourself with tools/apply_variant.py from the released training file you already have. The script verifies your copy against source_content_digest before writing anything, and its own output against content_digest afterwards. If either check fails, stop and open an issue.",
+    "replaces": "train_with_hardneg_by_unimol.lmdb (the UniMol hard-negative version)"
+  },
+  "conglude_ligandish": {
+    "applies_to": [
+      "04-conglude"
+    ],
+    "corpus": "conglude",
+    "files": [
+      {
+        "content_digest": "cdb76df21d73baabb8f3dcb14d21c1a7a428727065e48a12f8c5312546914d3f",
+        "format": "smiles_dir",
+        "n_records": 76801744,
+        "n_rows": null,
+        "replaces_file": "LB_train_val/raw/smiles_files",
+        "source_content_digest": "a81e17cbcfbace4b310e155c97121fb79ca0b2736b3d5177a702e5d979b949c8",
+        "source_n_records": 80846760,
+        "spec": "splits/specs/conglude_ligandish/conglude_ligandish.json.gz",
+        "spec_bytes": 208509
+      }
+    ],
+    "note": "Build this yourself with tools/apply_variant.py from the released training file you already have. The script verifies your copy against source_content_digest before writing anything, and its own output against content_digest afterwards. If either check fails, stop and open an issue.",
+    "replaces": "the ConGLUDe training file(s) named per spec below"
+  },
+  "conglude_ligandish_matched": {
+    "applies_to": [
+      "04-conglude"
+    ],
+    "corpus": "conglude",
+    "files": [
+      {
+        "content_digest": "ddfe7a5cafef29abea74121c203df7003b0aa80f68edb9529264e2846e9d8cb9",
+        "format": "smiles_dir",
+        "n_records": 76801744,
+        "n_rows": null,
+        "replaces_file": "LB_train_val/raw/smiles_files",
+        "source_content_digest": "a81e17cbcfbace4b310e155c97121fb79ca0b2736b3d5177a702e5d979b949c8",
+        "source_n_records": 80846760,
+        "spec": "splits/specs/conglude_ligandish_matched/conglude_ligandish_matched.json.gz",
+        "spec_bytes": 21426
+      }
+    ],
+    "note": "Build this yourself with tools/apply_variant.py from the released training file you already have. The script verifies your copy against source_content_digest before writing anything, and its own output against content_digest afterwards. If either check fails, stop and open an issue.",
+    "replaces": "the ConGLUDe training file(s) named per spec below"
+  },
+  "drugclip_train_ligandish": {
+    "applies_to": [
+      "01-drugclip",
+      "06-drughash"
+    ],
+    "corpus": "drugclip_train",
+    "files": [
+      {
+        "content_digest": "1fff7a000582bbedd69ce2da9bd08f316619188d23d21811ac14bf2176b22813",
+        "format": "lmdb",
+        "n_records": 58857,
+        "n_rows": null,
+        "replaces_file": "train.lmdb",
+        "source_content_digest": "a6241dbbed25dacdc8952b4aa4d2b221f996420f4a218a1d29b90b50a0c09d08",
+        "source_n_records": 66164,
+        "spec": "splits/specs/drugclip_train_ligandish/drugclip_train_ligandish.json.gz",
+        "spec_bytes": 17304
+      }
+    ],
+    "note": "Build this yourself with tools/apply_variant.py from the released training file you already have. The script verifies your copy against source_content_digest before writing anything, and its own output against content_digest afterwards. If either check fails, stop and open an issue.",
+    "replaces": "train.lmdb in the released train_no_test_af/ directory"
+  },
+  "drugclip_train_ligandish_matched": {
+    "applies_to": [
+      "01-drugclip",
+      "06-drughash"
+    ],
+    "corpus": "drugclip_train",
+    "files": [
+      {
+        "content_digest": "e2f557ee068af3b1750825cb10caecacfa5907f06bc43b8b1d740b5da6cce909",
+        "format": "lmdb",
+        "n_records": 58857,
+        "n_rows": null,
+        "replaces_file": "train.lmdb",
+        "source_content_digest": "a6241dbbed25dacdc8952b4aa4d2b221f996420f4a218a1d29b90b50a0c09d08",
+        "source_n_records": 66164,
+        "spec": "splits/specs/drugclip_train_ligandish_matched/drugclip_train_ligandish_matched.json.gz",
+        "spec_bytes": 17283
+      }
+    ],
+    "note": "Build this yourself with tools/apply_variant.py from the released training file you already have. The script verifies your copy against source_content_digest before writing anything, and its own output against content_digest afterwards. If either check fails, stop and open an issue.",
+    "replaces": "train.lmdb in the released train_no_test_af/ directory"
+  },
+  "pocketaffdb_ligandish": {
+    "applies_to": [
+      "02-hypseek",
+      "03-causalbind"
+    ],
+    "corpus": "pocketaffdb",
+    "files": [
+      {
+        "content_digest": "4e0a385d31ab950249f627dbcdc57aacb9212c9e1328cef2c57c56944cd8a0c0",
+        "format": "json_labels",
+        "n_records": 20136,
+        "n_rows": 509436,
+        "replaces_file": "train_label_blend_seq_full.json",
+        "source_content_digest": "fb92e473c05d3f1fe0598117b7bc717a77f2dcc96012c7cc49e7437605f654c8",
+        "source_n_records": 26748,
+        "spec": "splits/specs/pocketaffdb_ligandish/pocketaffdb_ligandish__train_label_blend_seq_full.json.gz",
+        "spec_bytes": 245083
+      },
+      {
+        "content_digest": "69765b6c59731ed95458fb5ba27f64d18e1a1612c26bdedbfd81103f17709ef0",
+        "format": "json_labels",
+        "n_records": 13882,
+        "n_rows": 13882,
+        "replaces_file": "train_label_pdbbind_seq.json",
+        "source_content_digest": "793be615eb0e0c8a79573dc772560b47be770b25aa8333f19cf924f0959ae927",
+        "source_n_records": 16744,
+        "spec": "splits/specs/pocketaffdb_ligandish/pocketaffdb_ligandish__train_label_pdbbind_seq.json.gz",
+        "spec_bytes": 32534
+      }
+    ],
+    "note": "Build this yourself with tools/apply_variant.py from the released training file you already have. The script verifies your copy against source_content_digest before writing anything, and its own output against content_digest afterwards. If either check fails, stop and open an issue.",
+    "replaces": "train_label_blend_seq_full.json and train_label_pdbbind_seq.json in the training data directory"
+  },
+  "pocketaffdb_ligandish_matched": {
+    "applies_to": [
+      "02-hypseek",
+      "03-causalbind"
+    ],
+    "corpus": "pocketaffdb",
+    "files": [
+      {
+        "content_digest": "38960636fe9596945ae80c6920fc7fd1f91a8698148977bc6e7fba625bd6b79c",
+        "format": "json_labels",
+        "n_records": 20136,
+        "n_rows": 509436,
+        "replaces_file": "train_label_blend_seq_full.json",
+        "source_content_digest": "fb92e473c05d3f1fe0598117b7bc717a77f2dcc96012c7cc49e7437605f654c8",
+        "source_n_records": 26748,
+        "spec": "splits/specs/pocketaffdb_ligandish_matched/pocketaffdb_ligandish_matched__train_label_blend_seq_full.json.gz",
+        "spec_bytes": 92481
+      },
+      {
+        "content_digest": "4730492ea37270c200bc2361eba8df701a4c29510b0f151a41a09ac3f8c74cb4",
+        "format": "json_labels",
+        "n_records": 13882,
+        "n_rows": 13882,
+        "replaces_file": "train_label_pdbbind_seq.json",
+        "source_content_digest": "793be615eb0e0c8a79573dc772560b47be770b25aa8333f19cf924f0959ae927",
+        "source_n_records": 16744,
+        "spec": "splits/specs/pocketaffdb_ligandish_matched/pocketaffdb_ligandish_matched__train_label_pdbbind_seq.json.gz",
+        "spec_bytes": 32549
+      }
+    ],
+    "note": "Build this yourself with tools/apply_variant.py from the released training file you already have. The script verifies your copy against source_content_digest before writing anything, and its own output against content_digest afterwards. If either check fails, stop and open an issue.",
+    "replaces": "train_label_blend_seq_full.json and train_label_pdbbind_seq.json in the training data directory"
+  },
+  "sprint_merged_ligandish": {
+    "applies_to": [
+      "07-sprint"
+    ],
+    "corpus": "merged",
+    "files": [
+      {
+        "content_digest": "6d6e1885640be70f1f1c5b34dfa554131445253040b45077f2cdc04909ab234e",
+        "format": "tsv",
+        "n_records": 61313694,
+        "n_rows": null,
+        "replaces_file": "merged_neg_uniq_train_rand.tsv",
+        "source_content_digest": "790bb484763073b2dbdd6c2a8abff21d0100a91edfcd5975172c343bbb2d57e8",
+        "source_n_records": 64361902,
+        "spec": "splits/specs/sprint_merged_ligandish/sprint_merged_ligandish__merged_neg_uniq_train_rand.tsv.json.gz",
+        "spec_bytes": 62988
+      },
+      {
+        "content_digest": "79217452353ba32eac6278bc39c70d863e2a24486214ffce40398409a189738d",
+        "format": "tsv",
+        "n_records": 517877,
+        "n_rows": null,
+        "replaces_file": "merged_pos_uniq_train_rand.tsv",
+        "source_content_digest": "b2b04ff204303fb33407db7e43c9d3c1d8d94bfd4aa6460905af72b76e24d7c5",
+        "source_n_records": 574754,
+        "spec": "splits/specs/sprint_merged_ligandish/sprint_merged_ligandish__merged_pos_uniq_train_rand.tsv.json.gz",
+        "spec_bytes": 40125
+      }
+    ],
+    "note": "Build this yourself with tools/apply_variant.py from the released training file you already have. The script verifies your copy against source_content_digest before writing anything, and its own output against content_digest afterwards. If either check fails, stop and open an issue.",
+    "replaces": "merged_pos_uniq_train_rand.tsv and merged_neg_uniq_train_rand.tsv in the MERGED data directory; the validation and test files are unchanged"
+  },
+  "sprint_merged_ligandish_matched": {
+    "applies_to": [
+      "07-sprint"
+    ],
+    "corpus": "merged",
+    "files": [
+      {
+        "content_digest": "0167f36a331004ca01a5c57f1b8c39cf46507f1d0495b681582e589282e1f539",
+        "format": "tsv",
+        "n_records": 61313694,
+        "n_rows": null,
+        "replaces_file": "merged_neg_uniq_train_rand.tsv",
+        "source_content_digest": "790bb484763073b2dbdd6c2a8abff21d0100a91edfcd5975172c343bbb2d57e8",
+        "source_n_records": 64361902,
+        "spec": "splits/specs/sprint_merged_ligandish_matched/sprint_merged_ligandish_matched__merged_neg_uniq_train_rand.tsv.json.gz",
+        "spec_bytes": 8107714
+      },
+      {
+        "content_digest": "a4e5c2538e93d64abec479f3a5323f184974fbe15447b343ecf854305231fcec",
+        "format": "tsv",
+        "n_records": 517877,
+        "n_rows": null,
+        "replaces_file": "merged_pos_uniq_train_rand.tsv",
+        "source_content_digest": "b2b04ff204303fb33407db7e43c9d3c1d8d94bfd4aa6460905af72b76e24d7c5",
+        "source_n_records": 574754,
+        "spec": "splits/specs/sprint_merged_ligandish_matched/sprint_merged_ligandish_matched__merged_pos_uniq_train_rand.tsv.json.gz",
+        "spec_bytes": 138657
+      }
+    ],
+    "note": "Build this yourself with tools/apply_variant.py from the released training file you already have. The script verifies your copy against source_content_digest before writing anything, and its own output against content_digest afterwards. If either check fails, stop and open an issue.",
+    "replaces": "merged_pos_uniq_train_rand.tsv and merged_neg_uniq_train_rand.tsv in the MERGED data directory; the validation and test files are unchanged"
+  }
+}

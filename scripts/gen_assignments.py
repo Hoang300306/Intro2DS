@@ -9,9 +9,38 @@ hypothesis cannot tune toward it.
 Only facts that were actually checked go in `verified`. Anything unchecked is marked as such so the
 assignee knows to confirm it before relying on it.
 """
+import json
 import pathlib
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
+MAN = json.load(open(ROOT / "splits" / "MANIFEST.json"))
+
+
+def variant_commands(aid: str, variants: list[str]) -> str:
+    """The exact applier invocations for this person, one per spec.
+
+    Generated rather than written by hand because several variants cover more than one released
+    file, and a single example command would leave somebody applying half of their variant.
+    """
+    out = []
+    for v in variants:
+        e = MAN.get(v)
+        if e is None:
+            out.append(f"- `{v}` — **not yet published**; we will tell you when it is.")
+            continue
+        n = len(e["files"])
+        out.append(f"\n**`{v}`** — {n} file{'s' if n > 1 else ''} to build"
+                   + (" (run the command once per file)" if n > 1 else "") + ":\n")
+        out.append("```bash")
+        for f in e["files"]:
+            noun = "directory" if f["format"] == "smiles_dir" else "file"
+            out.append(f"# replaces the released {noun}: {f['replaces_file']}")
+            out.append(f"python tools/apply_variant.py \\")
+            out.append(f"    {f['spec']} \\")
+            out.append(f"    <your released {f['replaces_file']}> \\")
+            out.append(f"    <where to write it>")
+        out.append("```")
+    return "\n".join(out)
 
 M = [
  dict(id="01-drugclip", name="DrugCLIP", venue="NeurIPS 2023",
@@ -21,7 +50,7 @@ M = [
              "`dict_mol.txt` and `dict_pkt.txt`.",
    benchmarks="DUD-E and LIT-PCBA",
    replaces="`train.lmdb` inside the released `train_no_test_af/` directory",
-   variants=["drugclip_ligandish", "drugclip_ligandish_matched"],
+   variants=["drugclip_train_ligandish", "drugclip_train_ligandish_matched"],
    verified="We hold the released `train_no_test_af/train.lmdb` and confirmed it contains 66,164 "
             "records, each a dict with `smi` (the ligand SMILES) and `pocket` (a four-character PDB "
             "code). The variants were produced from that exact file.",
@@ -78,11 +107,19 @@ M = [
             "being retrieved on our side. The repository and the Zenodo record are confirmed to "
             "exist, with the file list above.",
    frozen="the evaluation entry point and its metric computation",
-   notes="**Your checkpoint C will be assigned later than the others**, because we are still "
-         "preparing this corpus. Checkpoints A and B need nothing from us, so start on those now "
-         "and do not wait. When you reach A1, tell us in your report which training files the "
-         "repository actually reads — that is useful to us and it is the fastest way to get your C "
-         "variants built correctly."),
+   notes="**This corpus needs one extra step, and getting it wrong would invalidate your "
+         "comparison.** The release ships a `processed/` tree — `ligand_embeddings/descriptors.dat` "
+         "at 1.5 GB and per-target graphs at 6.3 GB — which is *derived* from the raw SMILES files. "
+         "A variant changes those SMILES, so `processed/` has to be regenerated from them.\n\n"
+         "That means you must **also regenerate `processed/` for your checkpoint-B run**. If "
+         "checkpoint B uses the shipped features and checkpoint C uses freshly computed ones, any "
+         "change in the feature code between the release and today becomes a difference between "
+         "your two arms, and the comparison stops meaning anything. Regenerate both, from the same "
+         "code, and say in your report that you did.\n\n"
+         "Budget for this in your A3 estimate — it is real cost on top of training, and it is one "
+         "reason your A3 number matters.\n\n"
+         "Only the LB (ligand-based) training data is covered. If the paper's main results use the "
+         "SB variant, say so at A2 and stop before C."),
 
  dict(id="05-bindclip", name="BindCLIP", venue="KDD 2026",
    repo="https://github.com/anjie-qiao/BindCLIP",
@@ -105,7 +142,11 @@ M = [
          "molecule. Do not substitute another repository's LMDB; use the variants built for yours.\n\n"
          "There are **two** released training versions (random and UniMol hard negatives) and we "
          "built variants for both. **Say in your A2 report which version the paper's main results "
-         "use, and use that one throughout** — B and C must use the same version. Only the primary "
+         "use, and use that one throughout** — B and C must use the same version.\n\n"
+         "So although four variants are listed below, **you run only the two matching your chosen "
+         "version**: two retrains at checkpoint C, not four. The other two exist so that whichever "
+         "version you pick is already prepared; leave them alone and say in your report which pair "
+         "you used. Only the primary "
          "ligand field was filtered when the variants were built; `decoy_smi` was left untouched, "
          "deliberately, so that your variants differ from the other corpora's in one way only."),
 
@@ -116,7 +157,7 @@ M = [
              "and the same released data as its predecessor.",
    benchmarks="DUD-E and LIT-PCBA",
    replaces="`train.lmdb` inside `train_no_test_af/`",
-   variants=["drugclip_ligandish", "drugclip_ligandish_matched"],
+   variants=["drugclip_train_ligandish", "drugclip_train_ligandish_matched"],
    verified="The README's Data section says to place the LMDB files under `train_no_test_af/`, which "
             "is the predecessor's released training directory. We hold that `train.lmdb` (66,164 "
             "records with `smi` and `pocket`) and built the variants from it.",
@@ -164,6 +205,25 @@ TPL = """# {id} — {name}
 | **Your branch** | `sub/{id}` |
 
 You are one of several people, each on a different model. Nothing here depends on anyone else.
+
+## Getting set up
+
+```bash
+git clone https://github.com/kongwoang/Intro2DS.git
+cd Intro2DS
+cp -r submissions/_TEMPLATE submissions/{id}
+git checkout -b sub/{id}
+```
+
+**Read [`../CONTRACT.md`](../CONTRACT.md) before you touch a GPU.** It is ten short rules and every
+one of them exists because breaking it has already cost somebody a run.
+
+Everything you are told to run is in this repository: `tools/apply_variant.py` builds your variants,
+and `scripts/validate_submission.py` is what CI runs on your pull request — run it yourself first,
+it is quicker than waiting for CI.
+
+Questions and problems go in a **GitHub issue in this repository**, titled with your id, not a DM:
+an answer one person needs is usually one everybody needs.
 
 ## What this study is
 
@@ -217,11 +277,21 @@ Then find the matching number **in the paper** and record, in `summary.json` und
 `published_reference`: the metric, its value, **which table or section it comes from**, and your
 relative gap.
 
-**The gate is 10 % relative on the headline metric.** Outside that: open an issue with your evidence
-and stop. Do not go on to A3. A documented non-reproduction is a real result and is not your fault.
+**Name the metric first.** In `summary.json`, `published_reference.metric` is the metric **the paper
+itself leads with** for that benchmark, and `published_reference.source` is the table or section it
+appears in. Decide that before you compute your gap — the gate applies to the metric you named, so
+picking it afterwards would just be choosing whichever number happens to pass.
 
-Deliver `summary.json`, `per_target.csv` (one row per target — see contract rule 3, this is not
-optional) and `log.txt`.
+**The gate is 10 % relative on that metric.** Outside it: open an issue with your evidence and stop.
+Do not go on to A3. A documented non-reproduction is a real result and is not your fault.
+
+Deliver `summary.json`, `per_target.csv` and `log.txt`.
+
+`per_target.csv` has one row per benchmark target and is **not optional** (contract rule 3).
+`target_id`, `n_actives` and `n_total` are always required. The metric columns — `auroc`, `bedroc`,
+`ef_0.005`, `ef_0.01`, `ef_0.02`, `ef_0.05` — are required **wherever your model's own evaluation
+computes them**; leave a column empty where it does not, and say which in `REPORT.md`. Do not invent
+a metric your repository does not compute, and do not quietly substitute a different one.
 
 ## A3 — smoke train, and the cost estimate  → `A3_smoke/`
 
@@ -264,21 +334,32 @@ They are usually **not** identical, and that difference is worth recording rathe
 
 Only after checkpoint B is merged.
 
-You will receive these variants:
+Your variants replace {replaces}.
 
-{variantlist}
+**You build them yourself from the released data you already have.** We do not send you training
+data: a variant differs from the released file only in which records it keeps, so you get a small
+spec saying which — tens of kilobytes instead of a gigabyte — and build it locally.
 
-Each variant is a drop-in replacement for {replaces}.
+The exact commands for your variants:
 
-For every variant:
+{variantcmds}
 
-1. **Verify the digests first.** `sha256sum` each file you received and compare against
-   `splits/MANIFEST.json`. CI checks the digests you record. A run on the wrong input is worse than
-   no run, because it looks valid.
-2. Retrain with **the same seed, configuration, checkpoint rule and code as checkpoint B**. The
-   input file is the only thing that changes (contract rule 6).
-3. Deliver `C_retrain_variants/<variant_id>/` containing `summary.json` (with `training_data` filled
-   in), `per_target.csv` and `log.txt`.
+The script verifies your released input against the digest we recorded **before it writes
+anything**, and verifies its own output afterwards. Both passing proves your download matches the
+input the variant was built from and that the filter applied correctly.
+
+It needs the `lmdb` package only for LMDB specs, which your model already requires.
+
+If a check fails: **stop, do not train, open an issue with the message.** Usually it means your
+released download differs from ours, which is itself worth knowing.
+
+Then, for each variant:
+
+1. Retrain with **the same seed, configuration, checkpoint rule and code as checkpoint B**. The input
+   file is the only thing that changes (contract rule 6).
+2. Record `split_id` and the digests the script printed in `summary.json`. CI compares them against
+   `splits/MANIFEST.json`.
+3. Deliver `C_retrain_variants/<variant_id>/` with `summary.json`, `per_target.csv` and `log.txt`.
 
 ---
 
@@ -294,7 +375,8 @@ out = ROOT / "assignments"
 out.mkdir(exist_ok=True)
 for m in M:
     vl = "\n".join(f"- `{v}`" for v in m["variants"])
-    (out / f"{m['id']}.md").write_text(TPL.format(variantlist=vl, **m))
+    (out / f"{m['id']}.md").write_text(TPL.format(
+        variantlist=vl, variantcmds=variant_commands(m["id"], m["variants"]), **m))
 
 idx = ["# Assignments", "",
        "One model per person. Each sheet is self-contained — read yours, the "

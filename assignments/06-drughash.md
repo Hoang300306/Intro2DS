@@ -10,6 +10,25 @@
 
 You are one of several people, each on a different model. Nothing here depends on anyone else.
 
+## Getting set up
+
+```bash
+git clone https://github.com/kongwoang/Intro2DS.git
+cd Intro2DS
+cp -r submissions/_TEMPLATE submissions/06-drughash
+git checkout -b sub/06-drughash
+```
+
+**Read [`../CONTRACT.md`](../CONTRACT.md) before you touch a GPU.** It is ten short rules and every
+one of them exists because breaking it has already cost somebody a run.
+
+Everything you are told to run is in this repository: `tools/apply_variant.py` builds your variants,
+and `scripts/validate_submission.py` is what CI runs on your pull request — run it yourself first,
+it is quicker than waiting for CI.
+
+Questions and problems go in a **GitHub issue in this repository**, titled with your id, not a DM:
+an answer one person needs is usually one everybody needs.
+
 ## What this study is
 
 We are measuring two things about published virtual-screening models: how well their reported
@@ -64,11 +83,21 @@ Then find the matching number **in the paper** and record, in `summary.json` und
 `published_reference`: the metric, its value, **which table or section it comes from**, and your
 relative gap.
 
-**The gate is 10 % relative on the headline metric.** Outside that: open an issue with your evidence
-and stop. Do not go on to A3. A documented non-reproduction is a real result and is not your fault.
+**Name the metric first.** In `summary.json`, `published_reference.metric` is the metric **the paper
+itself leads with** for that benchmark, and `published_reference.source` is the table or section it
+appears in. Decide that before you compute your gap — the gate applies to the metric you named, so
+picking it afterwards would just be choosing whichever number happens to pass.
 
-Deliver `summary.json`, `per_target.csv` (one row per target — see contract rule 3, this is not
-optional) and `log.txt`.
+**The gate is 10 % relative on that metric.** Outside it: open an issue with your evidence and stop.
+Do not go on to A3. A documented non-reproduction is a real result and is not your fault.
+
+Deliver `summary.json`, `per_target.csv` and `log.txt`.
+
+`per_target.csv` has one row per benchmark target and is **not optional** (contract rule 3).
+`target_id`, `n_actives` and `n_total` are always required. The metric columns — `auroc`, `bedroc`,
+`ef_0.005`, `ef_0.01`, `ef_0.02`, `ef_0.05` — are required **wherever your model's own evaluation
+computes them**; leave a column empty where it does not, and say which in `REPORT.md`. Do not invent
+a metric your repository does not compute, and do not quietly substitute a different one.
 
 ## A3 — smoke train, and the cost estimate  → `A3_smoke/`
 
@@ -111,22 +140,51 @@ They are usually **not** identical, and that difference is worth recording rathe
 
 Only after checkpoint B is merged.
 
-You will receive these variants:
+Your variants replace `train.lmdb` inside `train_no_test_af/`.
 
-- `drugclip_ligandish`
-- `drugclip_ligandish_matched`
+**You build them yourself from the released data you already have.** We do not send you training
+data: a variant differs from the released file only in which records it keeps, so you get a small
+spec saying which — tens of kilobytes instead of a gigabyte — and build it locally.
 
-Each variant is a drop-in replacement for `train.lmdb` inside `train_no_test_af/`.
+The exact commands for your variants:
 
-For every variant:
 
-1. **Verify the digests first.** `sha256sum` each file you received and compare against
-   `splits/MANIFEST.json`. CI checks the digests you record. A run on the wrong input is worse than
-   no run, because it looks valid.
-2. Retrain with **the same seed, configuration, checkpoint rule and code as checkpoint B**. The
-   input file is the only thing that changes (contract rule 6).
-3. Deliver `C_retrain_variants/<variant_id>/` containing `summary.json` (with `training_data` filled
-   in), `per_target.csv` and `log.txt`.
+**`drugclip_train_ligandish`** — 1 file to build:
+
+```bash
+# replaces the released file: train.lmdb
+python tools/apply_variant.py \
+    splits/specs/drugclip_train_ligandish/drugclip_train_ligandish.json.gz \
+    <your released train.lmdb> \
+    <where to write it>
+```
+
+**`drugclip_train_ligandish_matched`** — 1 file to build:
+
+```bash
+# replaces the released file: train.lmdb
+python tools/apply_variant.py \
+    splits/specs/drugclip_train_ligandish_matched/drugclip_train_ligandish_matched.json.gz \
+    <your released train.lmdb> \
+    <where to write it>
+```
+
+The script verifies your released input against the digest we recorded **before it writes
+anything**, and verifies its own output afterwards. Both passing proves your download matches the
+input the variant was built from and that the filter applied correctly.
+
+It needs the `lmdb` package only for LMDB specs, which your model already requires.
+
+If a check fails: **stop, do not train, open an issue with the message.** Usually it means your
+released download differs from ours, which is itself worth knowing.
+
+Then, for each variant:
+
+1. Retrain with **the same seed, configuration, checkpoint rule and code as checkpoint B**. The input
+   file is the only thing that changes (contract rule 6).
+2. Record `split_id` and the digests the script printed in `summary.json`. CI compares them against
+   `splits/MANIFEST.json`.
+3. Deliver `C_retrain_variants/<variant_id>/` with `summary.json`, `per_target.csv` and `log.txt`.
 
 ---
 

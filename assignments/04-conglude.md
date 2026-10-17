@@ -10,6 +10,25 @@
 
 You are one of several people, each on a different model. Nothing here depends on anyone else.
 
+## Getting set up
+
+```bash
+git clone https://github.com/kongwoang/Intro2DS.git
+cd Intro2DS
+cp -r submissions/_TEMPLATE submissions/04-conglude
+git checkout -b sub/04-conglude
+```
+
+**Read [`../CONTRACT.md`](../CONTRACT.md) before you touch a GPU.** It is ten short rules and every
+one of them exists because breaking it has already cost somebody a run.
+
+Everything you are told to run is in this repository: `tools/apply_variant.py` builds your variants,
+and `scripts/validate_submission.py` is what CI runs on your pull request — run it yourself first,
+it is quicker than waiting for CI.
+
+Questions and problems go in a **GitHub issue in this repository**, titled with your id, not a DM:
+an answer one person needs is usually one everybody needs.
+
 ## What this study is
 
 We are measuring two things about published virtual-screening models: how well their reported
@@ -27,7 +46,13 @@ Nothing about the internal file layout is confirmed yet: the Zenodo archives are
 
 ## Notes specific to this model
 
-**Your checkpoint C will be assigned later than the others**, because we are still preparing this corpus. Checkpoints A and B need nothing from us, so start on those now and do not wait. When you reach A1, tell us in your report which training files the repository actually reads — that is useful to us and it is the fastest way to get your C variants built correctly.
+**This corpus needs one extra step, and getting it wrong would invalidate your comparison.** The release ships a `processed/` tree — `ligand_embeddings/descriptors.dat` at 1.5 GB and per-target graphs at 6.3 GB — which is *derived* from the raw SMILES files. A variant changes those SMILES, so `processed/` has to be regenerated from them.
+
+That means you must **also regenerate `processed/` for your checkpoint-B run**. If checkpoint B uses the shipped features and checkpoint C uses freshly computed ones, any change in the feature code between the release and today becomes a difference between your two arms, and the comparison stops meaning anything. Regenerate both, from the same code, and say in your report that you did.
+
+Budget for this in your A3 estimate — it is real cost on top of training, and it is one reason your A3 number matters.
+
+Only the LB (ligand-based) training data is covered. If the paper's main results use the SB variant, say so at A2 and stop before C.
 
 ---
 
@@ -62,11 +87,21 @@ Then find the matching number **in the paper** and record, in `summary.json` und
 `published_reference`: the metric, its value, **which table or section it comes from**, and your
 relative gap.
 
-**The gate is 10 % relative on the headline metric.** Outside that: open an issue with your evidence
-and stop. Do not go on to A3. A documented non-reproduction is a real result and is not your fault.
+**Name the metric first.** In `summary.json`, `published_reference.metric` is the metric **the paper
+itself leads with** for that benchmark, and `published_reference.source` is the table or section it
+appears in. Decide that before you compute your gap — the gate applies to the metric you named, so
+picking it afterwards would just be choosing whichever number happens to pass.
 
-Deliver `summary.json`, `per_target.csv` (one row per target — see contract rule 3, this is not
-optional) and `log.txt`.
+**The gate is 10 % relative on that metric.** Outside it: open an issue with your evidence and stop.
+Do not go on to A3. A documented non-reproduction is a real result and is not your fault.
+
+Deliver `summary.json`, `per_target.csv` and `log.txt`.
+
+`per_target.csv` has one row per benchmark target and is **not optional** (contract rule 3).
+`target_id`, `n_actives` and `n_total` are always required. The metric columns — `auroc`, `bedroc`,
+`ef_0.005`, `ef_0.01`, `ef_0.02`, `ef_0.05` — are required **wherever your model's own evaluation
+computes them**; leave a column empty where it does not, and say which in `REPORT.md`. Do not invent
+a metric your repository does not compute, and do not quietly substitute a different one.
 
 ## A3 — smoke train, and the cost estimate  → `A3_smoke/`
 
@@ -109,22 +144,51 @@ They are usually **not** identical, and that difference is worth recording rathe
 
 Only after checkpoint B is merged.
 
-You will receive these variants:
+Your variants replace TO BE CONFIRMED — the exact training file names will be in the variant manifest before checkpoint C is assigned to you.
 
-- `conglude_ligandish`
-- `conglude_ligandish_matched`
+**You build them yourself from the released data you already have.** We do not send you training
+data: a variant differs from the released file only in which records it keeps, so you get a small
+spec saying which — tens of kilobytes instead of a gigabyte — and build it locally.
 
-Each variant is a drop-in replacement for TO BE CONFIRMED — the exact training file names will be in the variant manifest before checkpoint C is assigned to you.
+The exact commands for your variants:
 
-For every variant:
 
-1. **Verify the digests first.** `sha256sum` each file you received and compare against
-   `splits/MANIFEST.json`. CI checks the digests you record. A run on the wrong input is worse than
-   no run, because it looks valid.
-2. Retrain with **the same seed, configuration, checkpoint rule and code as checkpoint B**. The
-   input file is the only thing that changes (contract rule 6).
-3. Deliver `C_retrain_variants/<variant_id>/` containing `summary.json` (with `training_data` filled
-   in), `per_target.csv` and `log.txt`.
+**`conglude_ligandish`** — 1 file to build:
+
+```bash
+# replaces the released directory: LB_train_val/raw/smiles_files
+python tools/apply_variant.py \
+    splits/specs/conglude_ligandish/conglude_ligandish.json.gz \
+    <your released LB_train_val/raw/smiles_files> \
+    <where to write it>
+```
+
+**`conglude_ligandish_matched`** — 1 file to build:
+
+```bash
+# replaces the released directory: LB_train_val/raw/smiles_files
+python tools/apply_variant.py \
+    splits/specs/conglude_ligandish_matched/conglude_ligandish_matched.json.gz \
+    <your released LB_train_val/raw/smiles_files> \
+    <where to write it>
+```
+
+The script verifies your released input against the digest we recorded **before it writes
+anything**, and verifies its own output afterwards. Both passing proves your download matches the
+input the variant was built from and that the filter applied correctly.
+
+It needs the `lmdb` package only for LMDB specs, which your model already requires.
+
+If a check fails: **stop, do not train, open an issue with the message.** Usually it means your
+released download differs from ours, which is itself worth knowing.
+
+Then, for each variant:
+
+1. Retrain with **the same seed, configuration, checkpoint rule and code as checkpoint B**. The input
+   file is the only thing that changes (contract rule 6).
+2. Record `split_id` and the digests the script printed in `summary.json`. CI compares them against
+   `splits/MANIFEST.json`.
+3. Deliver `C_retrain_variants/<variant_id>/` with `summary.json`, `per_target.csv` and `log.txt`.
 
 ---
 

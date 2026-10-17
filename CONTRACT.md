@@ -59,16 +59,29 @@ One seed per run, in `summary.json`. **Never change the seed between checkpoint 
 Same seed, same configuration, same checkpoint rule, same code as checkpoint B. The only difference
 is the input file. If you need to change anything else, stop and open an issue.
 
-## 7. Verify the data you trained on
+## 7. Build the variants yourself, and let the script verify them
 
-At checkpoint C, `summary.json` carries `split_id` and the SHA256 of every file you were given. CI
-compares them against `splits/MANIFEST.json`. Check them **before** you train:
+You are not sent a copy of the training data. You already have the released training file — checkpoint
+B retrains on it — and a variant differs from it only in which records it keeps. So you get a small
+**spec** saying which, and you build the variant locally:
 
 ```bash
-sha256sum <the file you received>
+python tools/apply_variant.py splits/specs/<variant_id>/<spec>.json.gz \
+       <your released training file> <output file>
 ```
 
-A run on the wrong input is worse than no run, because it looks valid.
+The script checks your released file against the digest we recorded **before writing anything**, and
+checks its own output afterwards. Both passing means your download is the same file the variant was
+built from *and* the filter applied correctly — which being handed a finished file could never show.
+
+If either check fails it stops and tells you. **Do not train on a file that failed a check**; open an
+issue with the message. It is far cheaper to find out there than after a training run.
+
+Record `split_id` and the digests the script prints in `summary.json`. CI compares them against
+`splits/MANIFEST.json`.
+
+Digests are over record **content**, sorted — not over file bytes. Two LMDBs holding identical
+records can differ byte-for-byte across library versions, and we are not sending you after that.
 
 ## 8. Do not edit a script while a job is running
 

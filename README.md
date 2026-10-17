@@ -41,6 +41,20 @@ Read these three, in order, before you touch a GPU:
 2. [`CONTRACT.md`](CONTRACT.md) — the rules; short, and every one exists because breaking it has cost time
 3. [`report_schema.json`](report_schema.json) — the shape of each `summary.json`
 
+## Questions, problems, and timing
+
+**Open a GitHub issue in this repository.** That is the channel — not DM, not email — so that an
+answer one person needs is visible to everyone else who will hit the same thing. Tag it with your
+id (`01-drugclip`, and so on) in the title.
+
+There is **no fixed deadline**, and we would rather have a correct checkpoint A than a fast one.
+What matters is the order: finish A and get it merged before you start B, and B before C, because
+the expensive runs are approved from what A tells us. If you are blocked, say so in an issue rather
+than guessing or starting the next stage.
+
+If a checkpoint-A reproduction fails the gate, that is where your work stops and it is a complete,
+useful result. Say so and we will take it from there.
+
 ## When something is broken upstream
 
 **Say so in an issue and stop.** Do not patch around it, do not guess, do not "make it work".

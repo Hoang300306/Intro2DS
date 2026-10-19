@@ -4,7 +4,7 @@
 |---|---|
 | **Model** | ConGLUDe (ICML 2026) |
 | **Upstream repository** | https://github.com/ml-jku/conglude |
-| **Benchmarks** | the benchmarks the paper reports; list them explicitly in your report |
+| **Benchmarks** | DUD-E and LIT-PCBA (`python download_data.py --dataset_name vs`). The repository also evaluates pocket-prediction and pocket-ranking sets; you are not asked for those, so do not download them |
 | **Your directory** | `submissions/04-conglude/` |
 | **Your branch** | `sub/04-conglude` |
 
@@ -42,7 +42,7 @@ Training data on Zenodo (record 20354834) — the archives `LB_train_val.zip` an
 
 ## What we already checked for you
 
-Nothing about the internal file layout is confirmed yet: the Zenodo archives are still being retrieved on our side. The repository and the Zenodo record are confirmed to exist, with the file list above.
+We hold `LB_train_val.zip` from Zenodo (7,855,192,840 bytes, md5 `cfd25fcc9c275b994560b0a6d0dd1147`, matching the record) and built the variants from the `raw/smiles_files` tree inside it. Note that `unzip` 6.00 cannot read this archive because it is zip64 and over 4 GB; use 7-Zip or Python's `zipfile`, and check the md5 rather than trusting `unzip -t`.
 
 ## Notes specific to this model
 
@@ -50,9 +50,25 @@ Nothing about the internal file layout is confirmed yet: the Zenodo archives are
 
 That means you must **also regenerate `processed/` for your checkpoint-B run**. If checkpoint B uses the shipped features and checkpoint C uses freshly computed ones, any change in the feature code between the release and today becomes a difference between your two arms, and the comparison stops meaning anything. Regenerate both, from the same code, and say in your report that you did.
 
+The README will tell you the opposite: *all downloaded datasets except `SB_train_val` are already processed*. That is true of the released data and false of yours. The order is download, then apply the variant to `raw/smiles_files`, then `python process_data.py --dataset_name LB_train_val`, then train — and check that the `processed/` files really changed. Skip the reprocessing and the run trains on the shipped features, which still contain every molecule the variant removed; it will finish cleanly and tell you the variant made no difference.
+
 Budget for this in your A3 estimate — it is real cost on top of training, and it is one reason your A3 number matters.
 
 Only the LB (ligand-based) training data is covered. If the paper's main results use the SB variant, say so at A2 and stop before C.
+
+**`python eval.py` as shipped does not evaluate DUD-E or LIT-PCBA.** In `configs/datamodule/test_datasets/test_datasets.yaml` every dataset except `default_vs` is commented out, and `default_vs` is a generic placeholder pointing at a directory that is not a benchmark. Uncomment `dude` and `litpcba`, drop `default_vs` from the list, and commit that diff as `code/eval_setup.patch`. Run verbatim it would hand you confident numbers for the wrong data.
+
+**Pass `logger=null` when you train.** `configs/train.yaml` defaults to `logger: wb`, so a training run will try to log to Weights & Biases and will upload the resolved config, variant name included, to whatever workspace is configured on the machine.
+
+**The seed is a Hydra field**: `python train.py seed=0`. Note that `configs/trainer/default.yaml` sets `deterministic: false`, so two runs with the same seed are not bitwise identical. Do not try to fix that — record it as a limitation.
+
+**The checkpoint rule is already unambiguous**: `save_top_k: 1`, `save_last: false`, `monitor: avg_val/virtual_screening/bedroc`, `mode: max`. Exactly one checkpoint survives and it is the best by that metric. State it with its source.
+
+**Cost: `max_epochs: 500` with early stopping at `patience: 50`.** Report the per-epoch time and the epoch your B run actually stopped at. B and C may stop at different epochs; that is the model's own rule, so record it and do not override it.
+
+**Only EF@5% is computed.** `model.py` builds `VirtualScreeningMetrics(ef_fractions=[0.05])`, so leave `ef_0.005`, `ef_0.01` and `ef_0.02` empty and do not add cutoffs. BEDROC is at alpha 80.5. The metric class writes a per-target CSV itself, so `per_target.csv` needs no patch — point at the file it produces.
+
+The repository also ships agent command files under `.claude/`. If you use them, the evaluation path and the configs are still yours to keep fixed, and `code/frozen.sha256` is what will catch it if they are not.
 
 ---
 
@@ -103,6 +119,20 @@ Deliver `summary.json`, `per_target.csv` and `log.txt`.
 computes them**; leave a column empty where it does not, and say which in `REPORT.md`. Do not invent
 a metric your repository does not compute, and do not quietly substitute a different one.
 
+**Also record the BEDROC alpha your code uses.** Implementations differ — 80.5 and 85 are both in
+use — and one is not comparable with the other. Read it out of the code, do not assume it.
+
+**And record the SHA256 of the checkpoint file you scored.** Some of these repositories load each
+other's checkpoints without raising anything at all, so a mix-up produces numbers rather than an
+error.
+
+**Two kinds of edit to the evaluation path are allowed**, and only these two: adding a print or a
+written row so that per-target numbers come out, and registering the benchmark you were asked to
+score. Commit the diff as `code/eval_setup.patch`, list it in `REPORT.md`, and keep it byte-identical
+across A2, B and C. Do not touch how a metric is computed, which molecules are scored, or the order
+they are scored in — a patch that changes a number is a different experiment. If you think you need
+any other change, open an issue first.
+
 ## A3 — smoke train, and the cost estimate  → `A3_smoke/`
 
 Train for **one epoch on a small subset** — a few hundred training groups is plenty. The point is
@@ -114,6 +144,10 @@ Deliver `summary.json`, `log.txt`, and in `REPORT.md`:
 - how long one epoch took, on what subset
 - **your extrapolated cost for checkpoint B, and for each variant in checkpoint C**
 - what you extrapolated from
+- **what stops a run** — a fixed epoch count, or an early-stopping rule — and where that is
+  configured. Several of these repositories set a high epoch cap and rely on early stopping, so
+  multiplying your per-epoch time by the cap can overstate the cost many times over, while assuming
+  an early stop is a guess. Say which you did.
 
 We approve the expensive runs from that estimate. A careless guess here gets your run either blocked
 or wasted.
@@ -144,7 +178,7 @@ They are usually **not** identical, and that difference is worth recording rathe
 
 Only after checkpoint B is merged.
 
-Your variants replace TO BE CONFIRMED — the exact training file names will be in the variant manifest before checkpoint C is assigned to you.
+Your variants replace the raw SMILES directory `LB_train_val/raw/smiles_files` of the ligand-based training corpus.
 
 **You build them yourself from the released data you already have.** We do not send you training
 data: a variant differs from the released file only in which records it keeps, so you get a small

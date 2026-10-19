@@ -50,6 +50,14 @@ This model learns binary hash codes and ranks by Hamming distance, so its metric
 
 The README mentions optional HomoAug augmentation. **Do not use it** unless the paper's main results do; if they do, use it identically at B and C and say so.
 
+**The README has no numbers — its results are images.** `published_reference` must come from the paper (AAAI 2025, 39:17041-17049, or arXiv 2407.19790). Do not read a value off `figures/accuracy.png`.
+
+**`test.sh` and `retrieval.sh` ship with the authors' own absolute paths** (`/home/hanj/...`). Replace them. Note also that the LIT-PCBA directory the code reads is `./data/lib-pcba/raw/lit_pcba/` — that spelling is in the source, so create it exactly, and keep the benchmark directories free of stray files, since every entry `os.listdir` returns is treated as a target.
+
+One released checkpoint, `checkpoint_best.pt` under `savedir_drughash/`, and the training script's `--best-checkpoint-metric valid_bedroc --maximize-best-checkpoint-metric` agrees with it: the rule is best-by-`valid_bedroc`. Ignore the `savedir_10_0_s1/` path in `retrieval.sh`; it is not the directory the README tells you to use.
+
+The evaluation inherits `test_dude`, which prints only the macro means, so `per_target.csv` needs the print-only patch described under A2. The benchmark data and the Uni-Mol pretrained weights come from the predecessor's release — if another Uni-Mol model is already set up on this machine, one copy of those is enough. The global batch is 48; keep it the same at B and C.
+
 ---
 
 # Checkpoint A — environment, reproduction, smoke train
@@ -99,6 +107,20 @@ Deliver `summary.json`, `per_target.csv` and `log.txt`.
 computes them**; leave a column empty where it does not, and say which in `REPORT.md`. Do not invent
 a metric your repository does not compute, and do not quietly substitute a different one.
 
+**Also record the BEDROC alpha your code uses.** Implementations differ — 80.5 and 85 are both in
+use — and one is not comparable with the other. Read it out of the code, do not assume it.
+
+**And record the SHA256 of the checkpoint file you scored.** Some of these repositories load each
+other's checkpoints without raising anything at all, so a mix-up produces numbers rather than an
+error.
+
+**Two kinds of edit to the evaluation path are allowed**, and only these two: adding a print or a
+written row so that per-target numbers come out, and registering the benchmark you were asked to
+score. Commit the diff as `code/eval_setup.patch`, list it in `REPORT.md`, and keep it byte-identical
+across A2, B and C. Do not touch how a metric is computed, which molecules are scored, or the order
+they are scored in — a patch that changes a number is a different experiment. If you think you need
+any other change, open an issue first.
+
 ## A3 — smoke train, and the cost estimate  → `A3_smoke/`
 
 Train for **one epoch on a small subset** — a few hundred training groups is plenty. The point is
@@ -110,6 +132,10 @@ Deliver `summary.json`, `log.txt`, and in `REPORT.md`:
 - how long one epoch took, on what subset
 - **your extrapolated cost for checkpoint B, and for each variant in checkpoint C**
 - what you extrapolated from
+- **what stops a run** — a fixed epoch count, or an early-stopping rule — and where that is
+  configured. Several of these repositories set a high epoch cap and rely on early stopping, so
+  multiplying your per-epoch time by the cap can overstate the cost many times over, while assuming
+  an early stop is a guess. Say which you did.
 
 We approve the expensive runs from that estimate. A careless guess here gets your run either blocked
 or wasted.

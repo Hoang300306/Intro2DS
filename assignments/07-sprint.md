@@ -50,6 +50,23 @@ We hold the released corpus and confirmed the training files are TSVs of `ligand
 
 This model predicts binary interaction from sequence rather than ranking within a pocket, so the variants were built to preserve the **positive-to-negative ratio exactly** (identical to eight decimal places between the two variants). Do not resample or rebalance the classes: that would change the thing the variants hold fixed.
 
+**The README's own SPRINT command omits `--task merged`, and the config default is `task: davis`.** Run verbatim it trains on DAVIS, your variant file is never opened, and nothing anywhere says so. Pass the task explicitly. `configs/saprot_agg_config.yaml` also defaults to `model_size: "small"` and `epochs: 250`, so the flags are not optional decoration: without them you train the wrong model for sixteen times the budget. The command is
+
+```bash
+ultrafast-train --exp-id LitPCBA --config configs/saprot_agg_config.yaml \
+    --task merged --model-size large --epochs 15 --ship-model \
+    --target-protein-id "all" --similarity-threshold 0.9 \
+    --eval-pcba --no-wandb --replicate 0
+```
+
+**The seed flag is `--replicate` (alias `--r`), not `--seed`.** `train.py` calls `torch.manual_seed(config.replicate)` and `np.random.seed(config.replicate)`; the default is 0. Pass it explicitly and keep it identical at B and C. `--no-wandb` matters too: without it the run logs to the project `ConPlexTrain` from the config.
+
+**`--similarity-threshold 0.9` is the model's own MMseqs2 filter** and the released checkpoints are the 90 % models, so hold it at 0.9 everywhere. `mmseqs` must be on PATH and `data/MERGED/huge_data/id_to_sequence.npy` must be present; a failing MMseqs2 call raises rather than skipping the filter, so you will know.
+
+**With `--task merged --ship-model`, three things change at once**: `save_top_k=-1`, so every epoch's checkpoint is kept and fifteen of them is a lot of disk; `limit_test_batches=0`, so the built-in test runs on nothing; and `ship_model.ckpt` is written at the end with the final weights. The released models are the shipped ones — score `ship_model.ckpt`, say so, and get your numbers from the `--eval-pcba` callback.
+
+That callback prints, per target, AUROC, BEDROC and EF at 0.005, 0.01 and 0.05 — so `per_target.csv` needs no patch, `ef_0.02` stays empty, and **the BEDROC here is at alpha 85**, which is not the 80.5 most of this literature uses. Record the alpha. For `published_reference`, the released checkpoints correspond to Table 2 of arXiv 2411.15418.
+
 ---
 
 # Checkpoint A — environment, reproduction, smoke train
@@ -99,6 +116,20 @@ Deliver `summary.json`, `per_target.csv` and `log.txt`.
 computes them**; leave a column empty where it does not, and say which in `REPORT.md`. Do not invent
 a metric your repository does not compute, and do not quietly substitute a different one.
 
+**Also record the BEDROC alpha your code uses.** Implementations differ — 80.5 and 85 are both in
+use — and one is not comparable with the other. Read it out of the code, do not assume it.
+
+**And record the SHA256 of the checkpoint file you scored.** Some of these repositories load each
+other's checkpoints without raising anything at all, so a mix-up produces numbers rather than an
+error.
+
+**Two kinds of edit to the evaluation path are allowed**, and only these two: adding a print or a
+written row so that per-target numbers come out, and registering the benchmark you were asked to
+score. Commit the diff as `code/eval_setup.patch`, list it in `REPORT.md`, and keep it byte-identical
+across A2, B and C. Do not touch how a metric is computed, which molecules are scored, or the order
+they are scored in — a patch that changes a number is a different experiment. If you think you need
+any other change, open an issue first.
+
 ## A3 — smoke train, and the cost estimate  → `A3_smoke/`
 
 Train for **one epoch on a small subset** — a few hundred training groups is plenty. The point is
@@ -110,6 +141,10 @@ Deliver `summary.json`, `log.txt`, and in `REPORT.md`:
 - how long one epoch took, on what subset
 - **your extrapolated cost for checkpoint B, and for each variant in checkpoint C**
 - what you extrapolated from
+- **what stops a run** — a fixed epoch count, or an early-stopping rule — and where that is
+  configured. Several of these repositories set a high epoch cap and rely on early stopping, so
+  multiplying your per-epoch time by the cap can overstate the cost many times over, while assuming
+  an early stop is a guess. Say which you did.
 
 We approve the expensive runs from that estimate. A careless guess here gets your run either blocked
 or wasted.

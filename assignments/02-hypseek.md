@@ -46,7 +46,17 @@ Read from the repository's own code: `unimol/tasks/train_task.py` lines 514-515 
 
 ## Notes specific to this model
 
-The training task also reads `test_datasets/dude.json`, `PCBA.json` and `dekois.json` and applies its own filter to the training assays, so **the test index files are required for training, not only for evaluation**. Leave that filter alone: it must run identically on the released data and on every variant, or checkpoint B and checkpoint C stop being comparable.
+The training task also reads `test_datasets/dude.json`, `PCBA.json` and `dekois.json` and applies its own filter to the training assays, so **the test index files are required for training, not only for evaluation**. Leave that filter alone: it must run identically on the released data and on every variant, or checkpoint B and checkpoint C stop being comparable. `--protein-similarity-thres 1.0` in `train.sh` is part of that released configuration — do not change it.
+
+**`train.sh` takes a mode, and you want `CASF`.** `bash train.sh CASF` validates on CASF-2016 and sets `--best-checkpoint-metric valid_bedroc --maximize-best-checkpoint-metric`, so the repository's own rule is best-by-`valid_bedroc`; score that and say so. `bash train.sh FEP` passes `--disable-validation` and sets no best-checkpoint metric, so it produces no best checkpoint at all — it is the affinity-ranking configuration, not the screening one.
+
+**Two placeholders will stop you before anything runs**: `save_root="/save_root"` in `train.sh` is an absolute path at the filesystem root, which `mkdir -p` cannot create without root, and `DATA_ROOT=/path/test_datasets` in `test.sh` is not a real path. Set both to directories you own.
+
+**`test.sh` runs `pip uninstall -y unimol` on every invocation.** That is deliberate on their side — it forces the local `unimol/` to win on `PYTHONPATH` — but it does mutate your environment, so your A1 `import_test.txt` may stop reproducing after you first evaluate. Note it in `REPORT.md` rather than treating it as a broken environment.
+
+The evaluation prints per-target lines — `[DUD-E] <target> AUC=... BEDROC=... EF=[...]` — so `per_target.csv` needs no patch here. It also writes `saved_mols_embed.npy` and friends **per target**, which is tens of gigabytes over DUD-E and LIT-PCBA. Keep it out of git and budget the disk in A3.
+
+The global batch is 96: four GPUs × `batch_size=24` × `update_freq=1`. If you have fewer GPUs, keep the product at 96 by raising `--update-freq` rather than training on fewer GPUs, which would change the contrastive batch.
 
 ---
 
@@ -97,6 +107,20 @@ Deliver `summary.json`, `per_target.csv` and `log.txt`.
 computes them**; leave a column empty where it does not, and say which in `REPORT.md`. Do not invent
 a metric your repository does not compute, and do not quietly substitute a different one.
 
+**Also record the BEDROC alpha your code uses.** Implementations differ — 80.5 and 85 are both in
+use — and one is not comparable with the other. Read it out of the code, do not assume it.
+
+**And record the SHA256 of the checkpoint file you scored.** Some of these repositories load each
+other's checkpoints without raising anything at all, so a mix-up produces numbers rather than an
+error.
+
+**Two kinds of edit to the evaluation path are allowed**, and only these two: adding a print or a
+written row so that per-target numbers come out, and registering the benchmark you were asked to
+score. Commit the diff as `code/eval_setup.patch`, list it in `REPORT.md`, and keep it byte-identical
+across A2, B and C. Do not touch how a metric is computed, which molecules are scored, or the order
+they are scored in — a patch that changes a number is a different experiment. If you think you need
+any other change, open an issue first.
+
 ## A3 — smoke train, and the cost estimate  → `A3_smoke/`
 
 Train for **one epoch on a small subset** — a few hundred training groups is plenty. The point is
@@ -108,6 +132,10 @@ Deliver `summary.json`, `log.txt`, and in `REPORT.md`:
 - how long one epoch took, on what subset
 - **your extrapolated cost for checkpoint B, and for each variant in checkpoint C**
 - what you extrapolated from
+- **what stops a run** — a fixed epoch count, or an early-stopping rule — and where that is
+  configured. Several of these repositories set a high epoch cap and rely on early stopping, so
+  multiplying your per-epoch time by the cap can overstate the cost many times over, while assuming
+  an early stop is a guess. Say which you did.
 
 We approve the expensive runs from that estimate. A careless guess here gets your run either blocked
 or wasted.

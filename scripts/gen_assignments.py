@@ -57,7 +57,27 @@ M = [
    frozen="the benchmark loader and the metric functions (enrichment factor, BEDROC, AUROC) in the "
           "test/evaluation script",
    notes="This model is the origin of a family of later methods, so its evaluation code is the one "
-         "several other repositories inherit. Be especially careful not to modify it."),
+         "several other repositories inherit. Be especially careful not to modify it.\n\n"
+         "**`test_dude` prints only the macro means.** It loops over targets, collects `auc_list` "
+         "and the EF dictionaries, and prints `np.mean` of each — the per-target values and the "
+         "target names never reach the log. `per_target.csv` therefore needs the print-only patch "
+         "described under A2. Print the target name inside the loop: the target order comes from "
+         "`os.listdir`, which is filesystem order and not reproducible across machines, so position "
+         "in the list is not an id.\n\n"
+         "For the same reason, make sure `./data/DUD-E/raw/all/` and `./data/lit_pcba/` contain "
+         "**only** target directories. Both are read with `os.listdir` and every entry is treated "
+         "as a target, so a stray `.DS_Store` or a leftover archive becomes a target and either "
+         "crashes the run or lands in the mean.\n\n"
+         "**The checkpoint rule is best-by-`valid_bedroc`**: `drugclip.sh` passes "
+         "`--best-checkpoint-metric valid_bedroc --maximize-best-checkpoint-metric`, and `test.sh` "
+         "scores `checkpoint_best.pt`. State that and its source (contract rule 4).\n\n"
+         "**Both scripts hard-code a GPU index** — `CUDA_VISIBLE_DEVICES=\"1\"` in `drugclip.sh`, "
+         "and other indices elsewhere. Set it to a device you actually have; on a shared machine the "
+         "wrong index is somebody else's job. The paths are relative, so run from the repository "
+         "root. `TASK` in `test.sh` takes one benchmark at a time — run it once per benchmark.\n\n"
+         "The epoch budget is real: `epoch=200` with `--patience 2000`, so patience never fires and "
+         "200 epochs is what it will do. The global batch is 48 — `batch_size=48`, one GPU, "
+         "`update_freq=1`. Keep it the same at B and C."),
 
  dict(id="02-hypseek", name="HypSeek", venue="AAAI 2026",
    repo="https://github.com/jianhuiwemi/HypSeek",
@@ -76,7 +96,29 @@ M = [
          "applies its own filter to the training assays, so **the test index files are required for "
          "training, not only for evaluation**. Leave that filter alone: it must run identically on "
          "the released data and on every variant, or checkpoint B and checkpoint C stop being "
-         "comparable."),
+         "comparable. `--protein-similarity-thres 1.0` in `train.sh` is part of that released "
+         "configuration — do not change it.\n\n"
+         "**`train.sh` takes a mode, and you want `CASF`.** `bash train.sh CASF` validates on "
+         "CASF-2016 and sets `--best-checkpoint-metric valid_bedroc --maximize-best-checkpoint-"
+         "metric`, so the repository's own rule is best-by-`valid_bedroc`; score that and say so. "
+         "`bash train.sh FEP` passes `--disable-validation` and sets no best-checkpoint metric, so "
+         "it produces no best checkpoint at all — it is the affinity-ranking configuration, not the "
+         "screening one.\n\n"
+         "**Two placeholders will stop you before anything runs**: `save_root=\"/save_root\"` in "
+         "`train.sh` is an absolute path at the filesystem root, which `mkdir -p` cannot create "
+         "without root, and `DATA_ROOT=/path/test_datasets` in `test.sh` is not a real path. Set "
+         "both to directories you own.\n\n"
+         "**`test.sh` runs `pip uninstall -y unimol` on every invocation.** That is deliberate on "
+         "their side — it forces the local `unimol/` to win on `PYTHONPATH` — but it does mutate "
+         "your environment, so your A1 `import_test.txt` may stop reproducing after you first "
+         "evaluate. Note it in `REPORT.md` rather than treating it as a broken environment.\n\n"
+         "The evaluation prints per-target lines — `[DUD-E] <target> AUC=... BEDROC=... EF=[...]` — "
+         "so `per_target.csv` needs no patch here. It also writes `saved_mols_embed.npy` and "
+         "friends **per target**, which is tens of gigabytes over DUD-E and LIT-PCBA. Keep it out "
+         "of git and budget the disk in A3.\n\n"
+         "The global batch is 96: four GPUs × `batch_size=24` × `update_freq=1`. If you have fewer "
+         "GPUs, keep the product at 96 by raising `--update-freq` rather than training on fewer "
+         "GPUs, which would change the contrastive batch."),
 
  dict(id="03-causalbind", name="CausalBind", venue="NeurIPS 2026",
    repo="https://github.com/lokali/CausalBind",
@@ -121,13 +163,17 @@ M = [
    repo="https://github.com/ml-jku/conglude",
    artifacts="Training data on Zenodo (record 20354834) — the archives `LB_train_val.zip` and "
              "`SB_train_val.zip`. A checkpoint is under `checkpoints/` in the repository.",
-   benchmarks="the benchmarks the paper reports; list them explicitly in your report",
-   replaces="TO BE CONFIRMED — the exact training file names will be in the variant manifest before "
-            "checkpoint C is assigned to you",
+   benchmarks="DUD-E and LIT-PCBA (`python download_data.py --dataset_name vs`). The repository "
+              "also evaluates pocket-prediction and pocket-ranking sets; you are not asked for "
+              "those, so do not download them",
+   replaces="the raw SMILES directory `LB_train_val/raw/smiles_files` of the ligand-based training "
+            "corpus",
    variants=["conglude_ligandish", "conglude_ligandish_matched"],
-   verified="Nothing about the internal file layout is confirmed yet: the Zenodo archives are still "
-            "being retrieved on our side. The repository and the Zenodo record are confirmed to "
-            "exist, with the file list above.",
+   verified="We hold `LB_train_val.zip` from Zenodo (7,855,192,840 bytes, md5 "
+            "`cfd25fcc9c275b994560b0a6d0dd1147`, matching the record) and built the variants from "
+            "the `raw/smiles_files` tree inside it. Note that `unzip` 6.00 cannot read this archive "
+            "because it is zip64 and over 4 GB; use 7-Zip or Python's `zipfile`, and check the md5 "
+            "rather than trusting `unzip -t`.",
    frozen="the evaluation entry point and its metric computation",
    notes="**This corpus needs one extra step, and getting it wrong would invalidate your "
          "comparison.** The release ships a `processed/` tree — `ligand_embeddings/descriptors.dat` "
@@ -138,10 +184,42 @@ M = [
          "change in the feature code between the release and today becomes a difference between "
          "your two arms, and the comparison stops meaning anything. Regenerate both, from the same "
          "code, and say in your report that you did.\n\n"
+         "The README will tell you the opposite: *all downloaded datasets except `SB_train_val` are "
+         "already processed*. That is true of the released data and false of yours. The order is "
+         "download, then apply the variant to `raw/smiles_files`, then "
+         "`python process_data.py --dataset_name LB_train_val`, then train — and check that the "
+         "`processed/` files really changed. Skip the reprocessing and the run trains on the "
+         "shipped features, which still contain every molecule the variant removed; it will finish "
+         "cleanly and tell you the variant made no difference.\n\n"
          "Budget for this in your A3 estimate — it is real cost on top of training, and it is one "
          "reason your A3 number matters.\n\n"
          "Only the LB (ligand-based) training data is covered. If the paper's main results use the "
-         "SB variant, say so at A2 and stop before C."),
+         "SB variant, say so at A2 and stop before C.\n\n"
+         "**`python eval.py` as shipped does not evaluate DUD-E or LIT-PCBA.** In "
+         "`configs/datamodule/test_datasets/test_datasets.yaml` every dataset except `default_vs` "
+         "is commented out, and `default_vs` is a generic placeholder pointing at a directory that "
+         "is not a benchmark. Uncomment `dude` and `litpcba`, drop `default_vs` from the list, and "
+         "commit that diff as `code/eval_setup.patch`. Run verbatim it would hand you confident "
+         "numbers for the wrong data.\n\n"
+         "**Pass `logger=null` when you train.** `configs/train.yaml` defaults to `logger: wb`, so "
+         "a training run will try to log to Weights & Biases and will upload the resolved config, "
+         "variant name included, to whatever workspace is configured on the machine.\n\n"
+         "**The seed is a Hydra field**: `python train.py seed=0`. Note that "
+         "`configs/trainer/default.yaml` sets `deterministic: false`, so two runs with the same "
+         "seed are not bitwise identical. Do not try to fix that — record it as a limitation.\n\n"
+         "**The checkpoint rule is already unambiguous**: `save_top_k: 1`, `save_last: false`, "
+         "`monitor: avg_val/virtual_screening/bedroc`, `mode: max`. Exactly one checkpoint survives "
+         "and it is the best by that metric. State it with its source.\n\n"
+         "**Cost: `max_epochs: 500` with early stopping at `patience: 50`.** Report the per-epoch "
+         "time and the epoch your B run actually stopped at. B and C may stop at different epochs; "
+         "that is the model's own rule, so record it and do not override it.\n\n"
+         "**Only EF@5% is computed.** `model.py` builds `VirtualScreeningMetrics(ef_fractions="
+         "[0.05])`, so leave `ef_0.005`, `ef_0.01` and `ef_0.02` empty and do not add cutoffs. "
+         "BEDROC is at alpha 80.5. The metric class writes a per-target CSV itself, so "
+         "`per_target.csv` needs no patch — point at the file it produces.\n\n"
+         "The repository also ships agent command files under `.claude/`. If you use them, the "
+         "evaluation path and the configs are still yours to keep fixed, and `code/frozen.sha256` "
+         "is what will catch it if they are not."),
 
  dict(id="05-bindclip", name="BindCLIP", venue="KDD 2026",
    repo="https://github.com/anjie-qiao/BindCLIP",
@@ -170,7 +248,27 @@ M = [
          "version you pick is already prepared; leave them alone and say in your report which pair "
          "you used. Only the primary "
          "ligand field was filtered when the variants were built; `decoy_smi` was left untouched, "
-         "deliberately, so that your variants differ from the other corpora's in one way only."),
+         "deliberately, so that your variants differ from the other corpora's in one way only.\n\n"
+         "**The README invites you to score both released checkpoints and keep whichever performs "
+         "best for your use case. Do not do that here.** Choosing a checkpoint by its score on the "
+         "benchmark you are reporting is how a number stops meaning anything. Pick the one the "
+         "paper's main table used, decide that before you score, and if you score both, report "
+         "both and say which is which.\n\n"
+         "**The README carries no numeric results table** — the paper is the only source for your "
+         "`published_reference`, at `10.1145/3770855.3819040`. Do not read a value off a figure.\n\n"
+         "**RDKit 2022.09.5 is required**, and the README warns that another version may mean "
+         "reprocessing the training data. Do not reprocess it: your variant is a filter over the "
+         "released file, and the applier's digest check is what tells you whether the file you hold "
+         "is the file the variant was built from.\n\n"
+         "**The effective batch is 192**, not its predecessor's 48: `bindclip.sh` sets "
+         "`batch_size=48` with `update_freq=4` on one GPU. Keep it. The script's seed is 42 while "
+         "the released checkpoint filenames mention other seeds, so set `weight_path` to the file "
+         "you actually downloaded and keep your own training seed fixed at the script's value.\n\n"
+         "**This model's checkpoints load in its predecessor's inference code without complaint**, "
+         "which the README presents as a feature. It also means a wrong `--path` yields numbers "
+         "instead of an error, so the checkpoint SHA256 that A2 asks for is doing real work here. "
+         "The evaluation inherits `test_dude`, which prints only the macro means, so "
+         "`per_target.csv` needs the print-only patch described under A2."),
 
  dict(id="06-drughash", name="DrugHash", venue="AAAI 2025",
    repo="https://github.com/nwod-edispu/DrugHash",
@@ -188,7 +286,24 @@ M = [
          "differs from its predecessor's even though the data is shared. Freeze **its** evaluation "
          "path, not the predecessor's.\n\n"
          "The README mentions optional HomoAug augmentation. **Do not use it** unless the paper's "
-         "main results do; if they do, use it identically at B and C and say so."),
+         "main results do; if they do, use it identically at B and C and say so.\n\n"
+         "**The README has no numbers — its results are images.** `published_reference` must come "
+         "from the paper (AAAI 2025, 39:17041-17049, or arXiv 2407.19790). Do not read a value off "
+         "`figures/accuracy.png`.\n\n"
+         "**`test.sh` and `retrieval.sh` ship with the authors' own absolute paths** "
+         "(`/home/hanj/...`). Replace them. Note also that the LIT-PCBA directory the code reads is "
+         "`./data/lib-pcba/raw/lit_pcba/` — that spelling is in the source, so create it exactly, "
+         "and keep the benchmark directories free of stray files, since every entry `os.listdir` "
+         "returns is treated as a target.\n\n"
+         "One released checkpoint, `checkpoint_best.pt` under `savedir_drughash/`, and the training "
+         "script's `--best-checkpoint-metric valid_bedroc --maximize-best-checkpoint-metric` agrees "
+         "with it: the rule is best-by-`valid_bedroc`. Ignore the `savedir_10_0_s1/` path in "
+         "`retrieval.sh`; it is not the directory the README tells you to use.\n\n"
+         "The evaluation inherits `test_dude`, which prints only the macro means, so "
+         "`per_target.csv` needs the print-only patch described under A2. The benchmark data and the "
+         "Uni-Mol pretrained weights come from the predecessor's release — if another Uni-Mol model "
+         "is already set up on this machine, one copy of those is enough. The global batch is 48; "
+         "keep it the same at B and C."),
 
  dict(id="07-sprint", name="SPRINT", venue="MLSB @ NeurIPS 2024",
    repo="https://github.com/abhinadduri/panspecies-dti",
@@ -213,7 +328,37 @@ M = [
          "This model predicts binary interaction from sequence rather than ranking within a pocket, "
          "so the variants were built to preserve the **positive-to-negative ratio exactly** "
          "(identical to eight decimal places between the two variants). Do not resample or rebalance "
-         "the classes: that would change the thing the variants hold fixed."),
+         "the classes: that would change the thing the variants hold fixed.\n\n"
+         "**The README's own SPRINT command omits `--task merged`, and the config default is "
+         "`task: davis`.** Run verbatim it trains on DAVIS, your variant file is never opened, and "
+         "nothing anywhere says so. Pass the task explicitly. `configs/saprot_agg_config.yaml` also "
+         "defaults to `model_size: \"small\"` and `epochs: 250`, so the flags are not optional "
+         "decoration: without them you train the wrong model for sixteen times the budget. The "
+         "command is\n\n"
+         "```bash\n"
+         "ultrafast-train --exp-id LitPCBA --config configs/saprot_agg_config.yaml \\\n"
+         "    --task merged --model-size large --epochs 15 --ship-model \\\n"
+         "    --target-protein-id \"all\" --similarity-threshold 0.9 \\\n"
+         "    --eval-pcba --no-wandb --replicate 0\n"
+         "```\n\n"
+         "**The seed flag is `--replicate` (alias `--r`), not `--seed`.** `train.py` calls "
+         "`torch.manual_seed(config.replicate)` and `np.random.seed(config.replicate)`; the default "
+         "is 0. Pass it explicitly and keep it identical at B and C. `--no-wandb` matters too: "
+         "without it the run logs to the project `ConPlexTrain` from the config.\n\n"
+         "**`--similarity-threshold 0.9` is the model's own MMseqs2 filter** and the released "
+         "checkpoints are the 90 % models, so hold it at 0.9 everywhere. `mmseqs` must be on PATH "
+         "and `data/MERGED/huge_data/id_to_sequence.npy` must be present; a failing MMseqs2 call "
+         "raises rather than skipping the filter, so you will know.\n\n"
+         "**With `--task merged --ship-model`, three things change at once**: `save_top_k=-1`, so "
+         "every epoch's checkpoint is kept and fifteen of them is a lot of disk; "
+         "`limit_test_batches=0`, so the built-in test runs on nothing; and `ship_model.ckpt` is "
+         "written at the end with the final weights. The released models are the shipped ones — "
+         "score `ship_model.ckpt`, say so, and get your numbers from the `--eval-pcba` callback.\n\n"
+         "That callback prints, per target, AUROC, BEDROC and EF at 0.005, 0.01 and 0.05 — so "
+         "`per_target.csv` needs no patch, `ef_0.02` stays empty, and **the BEDROC here is at alpha "
+         "85**, which is not the 80.5 most of this literature uses. Record the alpha. For "
+         "`published_reference`, the released checkpoints correspond to Table 2 of arXiv "
+         "2411.15418."),
 ]
 
 TPL = """# {id} — {name}
@@ -315,6 +460,20 @@ Deliver `summary.json`, `per_target.csv` and `log.txt`.
 computes them**; leave a column empty where it does not, and say which in `REPORT.md`. Do not invent
 a metric your repository does not compute, and do not quietly substitute a different one.
 
+**Also record the BEDROC alpha your code uses.** Implementations differ — 80.5 and 85 are both in
+use — and one is not comparable with the other. Read it out of the code, do not assume it.
+
+**And record the SHA256 of the checkpoint file you scored.** Some of these repositories load each
+other's checkpoints without raising anything at all, so a mix-up produces numbers rather than an
+error.
+
+**Two kinds of edit to the evaluation path are allowed**, and only these two: adding a print or a
+written row so that per-target numbers come out, and registering the benchmark you were asked to
+score. Commit the diff as `code/eval_setup.patch`, list it in `REPORT.md`, and keep it byte-identical
+across A2, B and C. Do not touch how a metric is computed, which molecules are scored, or the order
+they are scored in — a patch that changes a number is a different experiment. If you think you need
+any other change, open an issue first.
+
 ## A3 — smoke train, and the cost estimate  → `A3_smoke/`
 
 Train for **one epoch on a small subset** — a few hundred training groups is plenty. The point is
@@ -326,6 +485,10 @@ Deliver `summary.json`, `log.txt`, and in `REPORT.md`:
 - how long one epoch took, on what subset
 - **your extrapolated cost for checkpoint B, and for each variant in checkpoint C**
 - what you extrapolated from
+- **what stops a run** — a fixed epoch count, or an early-stopping rule — and where that is
+  configured. Several of these repositories set a high epoch cap and rely on early stopping, so
+  multiplying your per-epoch time by the cap can overstate the cost many times over, while assuming
+  an early stop is a guess. Say which you did.
 
 We approve the expensive runs from that estimate. A careless guess here gets your run either blocked
 or wasted.

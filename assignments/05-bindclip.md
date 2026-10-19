@@ -52,6 +52,16 @@ There are **two** released training versions (random and UniMol hard negatives) 
 
 So although four variants are listed below, **you run only the two matching your chosen version**: two retrains at checkpoint C, not four. The other two exist so that whichever version you pick is already prepared; leave them alone and say in your report which pair you used. Only the primary ligand field was filtered when the variants were built; `decoy_smi` was left untouched, deliberately, so that your variants differ from the other corpora's in one way only.
 
+**The README invites you to score both released checkpoints and keep whichever performs best for your use case. Do not do that here.** Choosing a checkpoint by its score on the benchmark you are reporting is how a number stops meaning anything. Pick the one the paper's main table used, decide that before you score, and if you score both, report both and say which is which.
+
+**The README carries no numeric results table** — the paper is the only source for your `published_reference`, at `10.1145/3770855.3819040`. Do not read a value off a figure.
+
+**RDKit 2022.09.5 is required**, and the README warns that another version may mean reprocessing the training data. Do not reprocess it: your variant is a filter over the released file, and the applier's digest check is what tells you whether the file you hold is the file the variant was built from.
+
+**The effective batch is 192**, not its predecessor's 48: `bindclip.sh` sets `batch_size=48` with `update_freq=4` on one GPU. Keep it. The script's seed is 42 while the released checkpoint filenames mention other seeds, so set `weight_path` to the file you actually downloaded and keep your own training seed fixed at the script's value.
+
+**This model's checkpoints load in its predecessor's inference code without complaint**, which the README presents as a feature. It also means a wrong `--path` yields numbers instead of an error, so the checkpoint SHA256 that A2 asks for is doing real work here. The evaluation inherits `test_dude`, which prints only the macro means, so `per_target.csv` needs the print-only patch described under A2.
+
 ---
 
 # Checkpoint A — environment, reproduction, smoke train
@@ -101,6 +111,20 @@ Deliver `summary.json`, `per_target.csv` and `log.txt`.
 computes them**; leave a column empty where it does not, and say which in `REPORT.md`. Do not invent
 a metric your repository does not compute, and do not quietly substitute a different one.
 
+**Also record the BEDROC alpha your code uses.** Implementations differ — 80.5 and 85 are both in
+use — and one is not comparable with the other. Read it out of the code, do not assume it.
+
+**And record the SHA256 of the checkpoint file you scored.** Some of these repositories load each
+other's checkpoints without raising anything at all, so a mix-up produces numbers rather than an
+error.
+
+**Two kinds of edit to the evaluation path are allowed**, and only these two: adding a print or a
+written row so that per-target numbers come out, and registering the benchmark you were asked to
+score. Commit the diff as `code/eval_setup.patch`, list it in `REPORT.md`, and keep it byte-identical
+across A2, B and C. Do not touch how a metric is computed, which molecules are scored, or the order
+they are scored in — a patch that changes a number is a different experiment. If you think you need
+any other change, open an issue first.
+
 ## A3 — smoke train, and the cost estimate  → `A3_smoke/`
 
 Train for **one epoch on a small subset** — a few hundred training groups is plenty. The point is
@@ -112,6 +136,10 @@ Deliver `summary.json`, `log.txt`, and in `REPORT.md`:
 - how long one epoch took, on what subset
 - **your extrapolated cost for checkpoint B, and for each variant in checkpoint C**
 - what you extrapolated from
+- **what stops a run** — a fixed epoch count, or an early-stopping rule — and where that is
+  configured. Several of these repositories set a high epoch cap and rely on early stopping, so
+  multiplying your per-epoch time by the cap can overstate the cost many times over, while assuming
+  an early stop is a guess. Say which you did.
 
 We approve the expensive runs from that estimate. A careless guess here gets your run either blocked
 or wasted.

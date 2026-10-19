@@ -46,7 +46,15 @@ The `Expected Layout` section of `DATA.md` lists `data/train_label_blend_seq_ful
 
 ## Notes specific to this model
 
-**Read `DATA.md` before anything else** — it is unusually complete and will save you time. It also states that the training task reads the benchmark index files to filter training assays, so those are needed for training too. Several checkpoints are released; say in your report which one you scored in A2 and why.
+**Read `DATA.md` before anything else** — it is unusually complete and will save you time. It also states that the training task reads the benchmark index files to filter training assays, so those are needed for training too.
+
+**Run the `sp` variant, and only `sp`.** The repository releases four — `sp`, `lr`, `emb`, `atom` — and `scripts/quick_start.sh` scores all four by default. `sp` is the variant the paper leads with (Theorem 2, first CausalBind row of Table 1) and the one the repository's own further analyses use; `atom` is described there as the interpretability variant. Use the same variant at A2, B and C: a number from one variant cannot be compared with a number from another, and doing all four would be twelve retrains instead of three. If your A3 estimate shows three `sp` runs do not fit your budget, say so in the pull request and propose `emb`, which is a smaller configuration — do not switch on your own.
+
+**Score `checkpoint_last.pt`, not the best checkpoint.** `scripts/train.sh` passes `--keep-best-checkpoints 8`, so a best checkpoint will be sitting right next to it, but the paper and the README both report the last one. State that rule and its source in your report (contract rule 4).
+
+**Name a DUD-E metric for the A2 gate.** DUD-E has 102 targets; LIT-PCBA has 15, and its EF@1% is volatile enough that the authors' own from-scratch run moved it by about a third while every DUD-E number stayed within 5 %. Score both benchmarks, but do not stake the 10 % gate on the small one. That same published comparison — the paper's numbers printed next to the repository's own from-scratch numbers — is also your yardstick at checkpoint B for how much drift is normal.
+
+**If you do not have four 80 GB GPUs**, keep the global batch at 96: it is `N_GPU` × `--batch-size` × `--update-freq`, which the released configuration sets to 4 × 24 × 1. Lower the per-GPU batch and raise `--update-freq` to compensate. Do not just train on fewer GPUs — that changes the contrastive batch, which changes the model.
 
 ---
 

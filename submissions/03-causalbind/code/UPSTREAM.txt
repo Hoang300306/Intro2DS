@@ -1,0 +1,6 @@
+# Fill both lines exactly. The commit SHA is what makes your run reconstructible.
+url    = https://github.com/lokali/CausalBind
+commit = 01fe8e93ca261f990e37ba3df7e7024cc5fa36dd
+
+# How you got it, if not a plain clone (release tarball, fork, zip from the paper page):
+notes  = plain git clone. Dependency Uni-Core (https://github.com/dptech-corp/Uni-Core) is not pinned by the CausalBind README; installed at ace6fae1c8479a9751f2bb1e1d6e4047427bc134 without --enable-cuda-ext.

@@ -82,6 +82,13 @@ benchmarks. For this repository that means the benchmark loader and the metric f
 **Generate it once, here, and never regenerate it.** CI uses it to detect whether the evaluation
 path moved under your feet between checkpoints.
 
+**If a pin no longer resolves**, move it to the nearest published release of the same line, record
+it in `code/changes.diff` with its one-line justification, and carry on — a pinned pre-release that
+has since been removed from PyPI is an index fact, not a change to the model. Do not loosen the pin
+to a range, and do not spend hours compiling a source-only package that nothing in the repository
+imports: check whether it is imported, and if it is not, drop it and say so. If the package is
+imported, or you are unsure, open an issue instead of guessing.
+
 ## A2 — reproduce the published numbers  → `A2_reproduce/`   ← hard gate
 
 Score the **released checkpoint** on the benchmarks above, using the repository's own evaluation
@@ -115,11 +122,13 @@ other's checkpoints without raising anything at all, so a mix-up produces number
 error.
 
 **Two kinds of edit to the evaluation path are allowed**, and only these two: adding a print or a
-written row so that per-target numbers come out, and registering the benchmark you were asked to
-score. Commit the diff as `code/eval_setup.patch`, list it in `REPORT.md`, and keep it byte-identical
-across A2, B and C. Do not touch how a metric is computed, which molecules are scored, or the order
-they are scored in — a patch that changes a number is a different experiment. If you think you need
-any other change, open an issue first.
+written row so that per-target numbers come out (contract rule 3 says so already), and registering
+the benchmark you were asked to score. They appear in `code/changes.diff` like any other edit, with
+a one-line justification in `REPORT.md` (contract rule 2) — do not invent a second patch file, and
+do put the diff's sha256 in `summary.json`, which is how CI holds it identical across A2, B and C.
+Do not touch how a metric is computed, which molecules are scored, or the order they are scored in
+— a patch that changes a number is a different experiment. If you think you need any other change,
+open an issue first.
 
 ## A3 — smoke train, and the cost estimate  → `A3_smoke/`
 

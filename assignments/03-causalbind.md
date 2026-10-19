@@ -48,6 +48,8 @@ The `Expected Layout` section of `DATA.md` lists `data/train_label_blend_seq_ful
 
 **Read `DATA.md` before anything else** — it is unusually complete and will save you time. It also states that the training task reads the benchmark index files to filter training assays, so those are needed for training too.
 
+**Two pins in `environment.yml` are already known to be bad, so do not spend time on them.** `hf-xet==1.1.5rc1` is not on PyPI — that release candidate became `1.1.5` on 2025-06-20 — and pip resolves the whole pip section before installing anything, so the one line fails the entire environment. Use `hf-xet==1.1.5`. It is the Xet transfer backend for `huggingface_hub`, which this repository calls only from `scripts/download_data.sh`, so it affects how bytes arrive and nothing else; no file in the repository imports it. `torchsort==0.1.10` is source-only on PyPI and will try to compile against your CUDA toolchain; nothing in the repository imports it either, so if that build fails, drop the line. Record both in `code/changes.diff`.
+
 **Run the `sp` variant, and only `sp`.** The repository releases four — `sp`, `lr`, `emb`, `atom` — and `scripts/quick_start.sh` scores all four by default. `sp` is the variant the paper leads with (Theorem 2, first CausalBind row of Table 1) and the one the repository's own further analyses use; `atom` is described there as the interpretability variant. Use the same variant at A2, B and C: a number from one variant cannot be compared with a number from another, and doing all four would be twelve retrains instead of three. If your A3 estimate shows three `sp` runs do not fit your budget, say so in the pull request and propose `emb`, which is a smaller configuration — do not switch on your own.
 
 **Score `checkpoint_last.pt`, not the best checkpoint.** `scripts/train.sh` passes `--keep-best-checkpoints 8`, so a best checkpoint will be sitting right next to it, but the paper and the README both report the last one. State that rule and its source in your report (contract rule 4).
@@ -79,6 +81,13 @@ benchmarks. For this repository that means the test task and its metric computat
 
 **Generate it once, here, and never regenerate it.** CI uses it to detect whether the evaluation
 path moved under your feet between checkpoints.
+
+**If a pin no longer resolves**, move it to the nearest published release of the same line, record
+it in `code/changes.diff` with its one-line justification, and carry on — a pinned pre-release that
+has since been removed from PyPI is an index fact, not a change to the model. Do not loosen the pin
+to a range, and do not spend hours compiling a source-only package that nothing in the repository
+imports: check whether it is imported, and if it is not, drop it and say so. If the package is
+imported, or you are unsure, open an issue instead of guessing.
 
 ## A2 — reproduce the published numbers  → `A2_reproduce/`   ← hard gate
 
@@ -113,11 +122,13 @@ other's checkpoints without raising anything at all, so a mix-up produces number
 error.
 
 **Two kinds of edit to the evaluation path are allowed**, and only these two: adding a print or a
-written row so that per-target numbers come out, and registering the benchmark you were asked to
-score. Commit the diff as `code/eval_setup.patch`, list it in `REPORT.md`, and keep it byte-identical
-across A2, B and C. Do not touch how a metric is computed, which molecules are scored, or the order
-they are scored in — a patch that changes a number is a different experiment. If you think you need
-any other change, open an issue first.
+written row so that per-target numbers come out (contract rule 3 says so already), and registering
+the benchmark you were asked to score. They appear in `code/changes.diff` like any other edit, with
+a one-line justification in `REPORT.md` (contract rule 2) — do not invent a second patch file, and
+do put the diff's sha256 in `summary.json`, which is how CI holds it identical across A2, B and C.
+Do not touch how a metric is computed, which molecules are scored, or the order they are scored in
+— a patch that changes a number is a different experiment. If you think you need any other change,
+open an issue first.
 
 ## A3 — smoke train, and the cost estimate  → `A3_smoke/`
 

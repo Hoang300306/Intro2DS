@@ -63,3 +63,31 @@ print("rc", rc); print(o)
 assert rc == 0 and (T / "out2.tsv").read_text() == (T / "out.tsv").read_text()
 shutil.rmtree(T, ignore_errors=True)
 print("\nALL TSV TESTS PASS")
+
+# --- json_labels: both the blend shape (assay_id) and the pdbbind shape (uniprot only, no id).
+#     The output digest here once called .items() on a list, which crashed AFTER writing the file.
+print("\n--- 6. json_labels, assay_id shape")
+T2 = pathlib.Path(tempfile.mkdtemp(prefix="apply_variant_test_json_"))
+for label, key in (("blend", "assay_id"), ("pdbbind", "uniprot")):
+    data = [{key: f"a{i}", "ligands": [f"l{i}{j}" for j in range(3)]} for i in range(6)]
+    if key == "uniprot":                      # pdbbind repeats its only identifier
+        for r in data[3:]:
+            r["uniprot"] = "a0"
+    src2 = T2 / f"{label}.json"
+    src2.write_text(json.dumps(data))
+    ident = [(r.get("assay_id") or r.get("uniprot") or "", len(r["ligands"])) for r in data]
+    keepmap = {0: [0, 2], 1: [1], 4: [0, 1, 2]}
+    sp2 = T2 / f"{label}.spec.json.gz"
+    sp2.write_bytes(gzip.compress(json.dumps({
+        "variant_id": f"t_{label}", "format": "json_labels", "operation": "keep_entry_ligands",
+        "ligand_keep": {str(k): v for k, v in keepmap.items()},
+        "source": {"file": src2.name, "n_records": len(data),
+                   "content_digest": m.content_digest_records(ident)},
+        "expected_output": {"n_records": 3, "n_rows": 6}}).encode()))
+    rc, o = run([str(sp2), str(src2), str(T2 / f"{label}.out.json")])
+    print(f"[{label}] rc {rc}"); print(o)
+    assert rc == 0 and "VERIFIED" in o, o
+    got = json.load(open(T2 / f"{label}.out.json"))
+    assert [len(r["ligands"]) for r in got] == [2, 1, 3], got
+shutil.rmtree(T2, ignore_errors=True)
+print("\nALL JSON_LABELS TESTS PASS")

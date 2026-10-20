@@ -185,7 +185,8 @@ def do_json_labels(spec: dict, src: pathlib.Path, dst: pathlib.Path) -> None:
     if len(out) != want["n_records"] or rows != want["n_rows"]:
         die(f"output mismatch: {len(out):,}/{rows:,} entries/rows vs "
             f"{want['n_records']:,}/{want['n_rows']:,}")
-    out_dig = content_digest_records([(k, *sorted(v)) for k, v in sorted(out.items())])
+    out_dig = content_digest_records(
+        [(r.get("assay_id") or r.get("uniprot") or "", len(r.get("ligands") or [])) for r in out])
     print(f"wrote {dst}  {len(out):,} entries / {rows:,} rows  digest {out_dig}  VERIFIED",
           flush=True)
 

@@ -242,26 +242,26 @@
     "corpus": "merged",
     "files": [
       {
-        "content_digest": "6d6e1885640be70f1f1c5b34dfa554131445253040b45077f2cdc04909ab234e",
+        "content_digest": "62663061fb91472611bca723e7bf81fc7c0faff03fee391b02075bfabd60a901",
         "format": "tsv",
         "n_records": 61313694,
         "n_rows": null,
         "replaces_file": "merged_neg_uniq_train_rand.tsv",
-        "source_content_digest": "790bb484763073b2dbdd6c2a8abff21d0100a91edfcd5975172c343bbb2d57e8",
+        "source_content_digest": "7f8478af877727eff460dbfa87108567425c42a72da6f0ac84543102fb7d5cc5",
         "source_n_records": 64361902,
         "spec": "splits/specs/sprint_merged_ligandish/sprint_merged_ligandish__merged_neg_uniq_train_rand.tsv.json.gz",
-        "spec_bytes": 62988
+        "spec_bytes": 62989
       },
       {
-        "content_digest": "79217452353ba32eac6278bc39c70d863e2a24486214ffce40398409a189738d",
+        "content_digest": "b00d8e437d6120f7c5bf49c13585fbfd7523648cbaaf4008aa6393f448ba3958",
         "format": "tsv",
         "n_records": 517877,
         "n_rows": null,
         "replaces_file": "merged_pos_uniq_train_rand.tsv",
-        "source_content_digest": "b2b04ff204303fb33407db7e43c9d3c1d8d94bfd4aa6460905af72b76e24d7c5",
+        "source_content_digest": "9d4c46c7abc2b00fa2ce630733007042eab0f15ba3095b73822ba79c3aff0866",
         "source_n_records": 574754,
         "spec": "splits/specs/sprint_merged_ligandish/sprint_merged_ligandish__merged_pos_uniq_train_rand.tsv.json.gz",
-        "spec_bytes": 40125
+        "spec_bytes": 40128
       }
     ],
     "note": "Build this yourself with tools/apply_variant.py from the released training file you already have. The script verifies your copy against source_content_digest before writing anything, and its own output against content_digest afterwards. If either check fails, stop and open an issue.",
@@ -274,26 +274,26 @@
     "corpus": "merged",
     "files": [
       {
-        "content_digest": "0167f36a331004ca01a5c57f1b8c39cf46507f1d0495b681582e589282e1f539",
+        "content_digest": "fd34c7bdd2d125fe4ef69625eeafeb2d9c9b51b922912a182c38d45a5d976c69",
         "format": "tsv",
         "n_records": 61313694,
         "n_rows": null,
         "replaces_file": "merged_neg_uniq_train_rand.tsv",
-        "source_content_digest": "790bb484763073b2dbdd6c2a8abff21d0100a91edfcd5975172c343bbb2d57e8",
+        "source_content_digest": "7f8478af877727eff460dbfa87108567425c42a72da6f0ac84543102fb7d5cc5",
         "source_n_records": 64361902,
         "spec": "splits/specs/sprint_merged_ligandish_matched/sprint_merged_ligandish_matched__merged_neg_uniq_train_rand.tsv.json.gz",
-        "spec_bytes": 8107714
+        "spec_bytes": 8107729
       },
       {
-        "content_digest": "a4e5c2538e93d64abec479f3a5323f184974fbe15447b343ecf854305231fcec",
+        "content_digest": "d1ebf5d89f38a225a71e02524099a53f5d74ac3bd77b47a4cb4a1d7e86341877",
         "format": "tsv",
         "n_records": 517877,
         "n_rows": null,
         "replaces_file": "merged_pos_uniq_train_rand.tsv",
-        "source_content_digest": "b2b04ff204303fb33407db7e43c9d3c1d8d94bfd4aa6460905af72b76e24d7c5",
+        "source_content_digest": "9d4c46c7abc2b00fa2ce630733007042eab0f15ba3095b73822ba79c3aff0866",
         "source_n_records": 574754,
         "spec": "splits/specs/sprint_merged_ligandish_matched/sprint_merged_ligandish_matched__merged_pos_uniq_train_rand.tsv.json.gz",
-        "spec_bytes": 138657
+        "spec_bytes": 138655
       }
     ],
     "note": "Build this yourself with tools/apply_variant.py from the released training file you already have. The script verifies your copy against source_content_digest before writing anything, and its own output against content_digest afterwards. If either check fails, stop and open an issue.",

@@ -11,5 +11,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: the tools must still behave
+        run: |
+          python scripts/test_applier.py
+          python scripts/test_validator.py
+      - name: the handoff must be self-consistent
+        run: python scripts/check_handoff.py
       - name: validate every submission
         run: python scripts/validate_submission.py --all

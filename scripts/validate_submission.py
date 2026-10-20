@@ -11,6 +11,7 @@ rather than merely wrong.
 from __future__ import annotations
 
 import argparse
+import copy
 import csv
 import hashlib
 import json
@@ -40,6 +41,20 @@ def sha256(p: pathlib.Path) -> str:
         for b in iter(lambda: f.read(1 << 20), b""):
             h.update(b)
     return h.hexdigest()
+
+
+def schema_for(stage: str) -> dict:
+    """The one `required` list in the schema describes a scoring run. Applied verbatim to A1 it
+    demands results, a seed and a checkpoint rule from a stage that has none of them, which would
+    fail every correct environment submission."""
+    sc = copy.deepcopy(SCHEMA)
+    if stage not in SCORING:
+        sc["required"] = [k for k in sc["required"] if k != "results"]
+    if stage == "A1_env":
+        rq = sc["properties"]["run"]["required"]
+        sc["properties"]["run"]["required"] = [k for k in rq
+                                               if k not in ("seed", "checkpoint_rule")]
+    return sc
 
 
 def check_required(obj, schema, where, pr: Problems, path="") -> None:
@@ -84,14 +99,16 @@ def check_required(obj, schema, where, pr: Problems, path="") -> None:
             pr.add(where, f"{path} should be a boolean")
 
 
-def validate_per_target(p: pathlib.Path, pr: Problems, where: str, min_rows: int = 5) -> None:
+def validate_per_target(p: pathlib.Path, pr: Problems, where: str,
+                        min_rows: int = 5) -> int | None:
+    """Returns the number of data rows, so the caller can hold it against the declared n_targets."""
     try:
         with open(p, newline="") as f:
             rows = list(csv.DictReader(f))
     except Exception as e:
-        pr.add(where, f"{p.name} will not parse as CSV: {e}"); return
+        pr.add(where, f"{p.name} will not parse as CSV: {e}"); return None
     if not rows:
-        pr.add(where, f"{p.name} has no data rows"); return
+        pr.add(where, f"{p.name} has no data rows"); return 0
     missing = [c for c in PER_TARGET_COLS if c not in rows[0]]
     if missing:
         pr.add(where, f"{p.name} is missing columns {missing}")
@@ -109,6 +126,7 @@ def validate_per_target(p: pathlib.Path, pr: Problems, where: str, min_rows: int
             if not (0.0 <= v <= 1.0):
                 pr.add(where, f"{p.name} target {r.get('target_id')}: {c}={v} is outside [0,1]")
                 break
+    return len(rows)
 
 
 def validate_code(sub: pathlib.Path, pr: Problems) -> str | None:
@@ -183,7 +201,7 @@ def validate(sub: pathlib.Path) -> Problems:
             summ = json.load(open(sfile))
         except Exception as e:
             pr.add(s, f"summary.json will not parse: {e}"); continue
-        check_required(summ, SCHEMA, s, pr)
+        check_required(summ, schema_for(s), s, pr)
         if summ.get("stage") != s:
             pr.add(s, f"summary.json says stage={summ.get('stage')!r}")
         code = summ.get("code") or {}
@@ -201,24 +219,39 @@ def validate(sub: pathlib.Path) -> Problems:
             res = summ.get("results") or []
             if not res:
                 pr.add(s, "results is empty")
+            if not any((d / n).exists() for n in ("log.txt", "log.txt.gz", "log")):
+                pr.add(s, "log.txt is missing; every scoring and training run ships its log")
             for r in res:
                 ptc = r.get("per_target_csv")
                 if not ptc:
+                    pr.add(s, f"{r.get('benchmark')}: per_target_csv is empty. Contract rule 3 is "
+                              "not satisfied by a mean; name the file, and if your repository "
+                              "prints only means, add the per-target dump it allows")
                     continue
                 q = pathlib.Path(ptc)
                 p = q if q.is_absolute() else d / q
                 if not p.exists():
                     pr.add(s, f"per_target_csv `{ptc}` does not exist")
                 else:
-                    validate_per_target(p, pr, s)
+                    n = validate_per_target(p, pr, s)
+                    want = r.get("n_targets")
+                    if isinstance(n, int) and isinstance(want, int) and n != want:
+                        pr.add(s, f"{r.get('benchmark')}: n_targets says {want} but "
+                                  f"{ptc} has {n} rows")
             if s == "A2_reproduce":
+                gated = [r for r in res if (r.get("published_reference") or {}).get("gate")]
+                if len(gated) != 1:
+                    pr.add(s, f"exactly one result must carry published_reference.gate = true "
+                              f"(found {len(gated)}). That is the benchmark and metric your sheet "
+                              "told you to name, and the 10 % gate applies to it alone -- the "
+                              "others are reported, not gated")
                 for r in res:
                     ref = r.get("published_reference") or {}
                     if "relative_gap_pct" not in ref:
                         pr.add(s, f"{r.get('benchmark')}: published_reference.relative_gap_pct is "
                                   "required at stage 2 -- state the paper's number, where it comes "
                                   "from, and your gap")
-                    elif abs(ref["relative_gap_pct"]) > 10:
+                    elif ref.get("gate") and abs(ref["relative_gap_pct"]) > 10:
                         pr.add(s, f"{r.get('benchmark')}: reproduction is "
                                   f"{ref['relative_gap_pct']:+.1f} % from the published value, "
                                   "outside the 10 % gate -- open an issue instead of continuing")
@@ -235,14 +268,28 @@ def validate(sub: pathlib.Path) -> Problems:
                     except Exception:
                         pub = None
                     if pub:
-                        want = {f["path"]: f["sha256"] for f in pub.get("files", [])}
+                        want = {pathlib.Path(f["replaces_file"]).name: f["content_digest"]
+                                for f in pub.get("files", []) if f.get("replaces_file")}
+                        seen = set()
                         for f in td["files"]:
-                            k = pathlib.Path(f["path"]).name
-                            hit = next((v for p2, v in want.items()
-                                        if pathlib.Path(p2).name == k), None)
-                            if hit and hit != f.get("sha256"):
-                                pr.add(s, f"{k}: sha256 does not match the published manifest -- "
+                            k = pathlib.Path(f.get("path", "")).name
+                            got = f.get("content_digest") or f.get("sha256")
+                            hit = want.get(k)
+                            if hit is None:
+                                pr.add(s, f"{k}: not a file this split replaces. The manifest "
+                                          f"lists: {', '.join(sorted(want)) or 'none'}")
+                            elif not got:
+                                pr.add(s, f"{k}: record the digest apply_variant.py printed, in "
+                                          "content_digest")
+                            elif got != hit:
+                                pr.add(s, f"{k}: digest does not match the published manifest -- "
                                           "this run used different data")
+                            else:
+                                seen.add(k)
+                        missing = sorted(set(want) - seen)
+                        if missing:
+                            pr.add(s, "training_data.files is missing a verified entry for: "
+                                      + ", ".join(missing))
                     elif td["split_id"] != "released":
                         pr.add(s, f"split_id `{td['split_id']}` is not in splits/MANIFEST.json")
 

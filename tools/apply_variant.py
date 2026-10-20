@@ -26,6 +26,7 @@ import csv
 import gzip
 import hashlib
 import json
+import os
 import pathlib
 import sys
 
@@ -56,12 +57,30 @@ def die(msg: str) -> "None":
     raise SystemExit(2)
 
 
+CHECK_ONLY = False
+
+
+def source_verified(msg: str) -> None:
+    """Every handler reports its source check here, so --check-source can stop at exactly the
+    point where the download has been proven and nothing has been written yet."""
+    print(f"source verified: {msg}", flush=True)
+    if CHECK_ONLY:
+        print("\n--check-source only: your released file matches the input this variant was built "
+              "from. Nothing was written. Record this digest in your checkpoint-A report.",
+              flush=True)
+        raise SystemExit(0)
+
+
 def load_spec(p: pathlib.Path) -> dict:
     raw = gzip.decompress(p.read_bytes()) if p.suffix == ".gz" else p.read_bytes()
     return json.loads(raw)
 
 
 def selected(spec: dict, n_total: int) -> list[int]:
+    if spec["operation"] not in ("keep_indices", "drop_indices"):
+        die(f"operation {spec['operation']!r} reached the index selector, which only understands "
+            "keep_indices and drop_indices. That is a bug in apply_variant.py and not a problem "
+            "with your file -- open an issue quoting this message.")
     idx = spec["indices"]
     if spec["operation"] == "keep_indices":
         keep = sorted(idx)
@@ -114,7 +133,7 @@ def do_lmdb(spec: dict, src: pathlib.Path, dst: pathlib.Path) -> None:
         die(f"source content digest mismatch.\n  expected {exp['content_digest']}\n  "
             f"got      {got}\nYour released training file differs from the one the variant was "
             "built from.")
-    print(f"source verified: {n:,} records, digest {got[:16]}", flush=True)
+    source_verified(f"{n:,} records, digest {got}")
 
     keep = selected(spec, n)
     dst.parent.mkdir(parents=True, exist_ok=True)
@@ -132,7 +151,7 @@ def do_lmdb(spec: dict, src: pathlib.Path, dst: pathlib.Path) -> None:
     if len(keep) != want["n_records"] or out_dig != want["content_digest"]:
         die(f"output does not match the spec.\n  records {len(keep):,} vs {want['n_records']:,}"
             f"\n  digest  {out_dig}\n          {want['content_digest']}")
-    print(f"wrote {dst}  {len(keep):,} records  digest {out_dig[:16]}  VERIFIED", flush=True)
+    print(f"wrote {dst}  {len(keep):,} records  digest {out_dig}  VERIFIED", flush=True)
 
 
 # ---------------------------------------------------------------- json label lists
@@ -146,7 +165,7 @@ def do_json_labels(spec: dict, src: pathlib.Path, dst: pathlib.Path) -> None:
     got = content_digest_records(ident)
     if got != exp["content_digest"]:
         die(f"source content digest mismatch\n  expected {exp['content_digest']}\n  got      {got}")
-    print(f"source verified: {len(data):,} entries, digest {got[:16]}", flush=True)
+    source_verified(f"{len(data):,} entries, digest {got}")
 
     # per-entry ligand keep lists; an entry absent from the map is dropped entirely
     keepmap = {int(k): v for k, v in spec["ligand_keep"].items()}
@@ -166,7 +185,9 @@ def do_json_labels(spec: dict, src: pathlib.Path, dst: pathlib.Path) -> None:
     if len(out) != want["n_records"] or rows != want["n_rows"]:
         die(f"output mismatch: {len(out):,}/{rows:,} entries/rows vs "
             f"{want['n_records']:,}/{want['n_rows']:,}")
-    print(f"wrote {dst}  {len(out):,} entries / {rows:,} rows  VERIFIED", flush=True)
+    out_dig = content_digest_records([(k, *sorted(v)) for k, v in sorted(out.items())])
+    print(f"wrote {dst}  {len(out):,} entries / {rows:,} rows  digest {out_dig}  VERIFIED",
+          flush=True)
 
 
 # ---------------------------------------------------------------- tsv / csv
@@ -175,16 +196,29 @@ def do_table(spec: dict, src: pathlib.Path, dst: pathlib.Path) -> None:
     with open(src, newline="") as f:
         rd = csv.reader(f, delimiter=sep)
         header = next(rd)
-        rows = list(rd)
+        rows = [tuple(r) for r in rd]
+    if len(rows) > 5_000_000:
+        print(f"note: {len(rows):,} rows held in memory; this needs several GB of RAM and some "
+              "minutes. If it is killed, say so in an issue rather than trimming the file.",
+              flush=True)
     exp = spec["source"]
     if len(rows) != exp["n_records"]:
         die(f"your file has {len(rows):,} rows, the spec expects {exp['n_records']:,}")
-    got = content_digest_records([tuple(r) for r in rows])
+    got = content_digest_records(rows)
     if got != exp["content_digest"]:
         die(f"source content digest mismatch\n  expected {exp['content_digest']}\n  got      {got}")
-    print(f"source verified: {len(rows):,} rows, digest {got[:16]}", flush=True)
+    source_verified(f"{len(rows):,} rows, digest {got}")
 
-    keep = selected(spec, len(rows))
+    if spec["operation"] == "drop_column_values":
+        col = spec["column"]
+        if col not in header:
+            die(f"the spec selects rows by the column {col!r}, which this file's header does not "
+                f"have (it has: {', '.join(header)}). This is the wrong source file for the spec.")
+        ci = header.index(col)
+        drop = {str(v) for v in spec["values"]}
+        keep = [i for i, r in enumerate(rows) if r[ci] not in drop]
+    else:
+        keep = selected(spec, len(rows))
     dst.parent.mkdir(parents=True, exist_ok=True)
     _CLEANUP.append(dst)
     with open(dst, "w", newline="") as f:
@@ -192,12 +226,12 @@ def do_table(spec: dict, src: pathlib.Path, dst: pathlib.Path) -> None:
         w.writerow(header)
         for i in keep:
             w.writerow(rows[i])
-    out_dig = content_digest_records([tuple(rows[i]) for i in keep])
+    out_dig = content_digest_records([rows[i] for i in keep])
     want = spec["expected_output"]
     if len(keep) != want["n_records"] or out_dig != want["content_digest"]:
         die(f"output mismatch\n  rows   {len(keep):,} vs {want['n_records']:,}"
             f"\n  digest {out_dig}\n         {want['content_digest']}")
-    print(f"wrote {dst}  {len(keep):,} rows  digest {out_dig[:16]}  VERIFIED", flush=True)
+    print(f"wrote {dst}  {len(keep):,} rows  digest {out_dig}  VERIFIED", flush=True)
 
 
 
@@ -241,7 +275,7 @@ def do_smiles_dir(spec: dict, src: pathlib.Path, dst: pathlib.Path) -> None:
     got = content_digest_records([(k, _lines_digest(v)) for k, v in content.items()])
     if got != exp["content_digest"]:
         die(f"source content digest mismatch\n  expected {exp['content_digest']}\n  got      {got}")
-    print(f"source verified: {len(content):,} files, {tot:,} lines, digest {got[:16]}", flush=True)
+    source_verified(f"{len(content):,} files, {tot:,} lines, digest {got}")
 
     op = spec["operation"]
     out_lines = {}
@@ -270,7 +304,7 @@ def do_smiles_dir(spec: dict, src: pathlib.Path, dst: pathlib.Path) -> None:
         die(f"output mismatch\n  lines  {n_out:,} vs {want['n_records']:,}"
             f"\n  digest {out_dig}\n         {want['content_digest']}")
     print(f"wrote {dst}  {len(out_lines):,} files / {n_out:,} lines  "
-          f"digest {out_dig[:16]}  VERIFIED", flush=True)
+          f"digest {out_dig}  VERIFIED", flush=True)
     print("\nNOTE: this corpus ships a `processed/` tree derived from these SMILES. Delete it so "
           "your code regenerates it, and regenerate it for your released-data run too -- otherwise "
           "one arm uses shipped features and the other freshly computed ones.", flush=True)
@@ -280,15 +314,22 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("spec")
     ap.add_argument("src")
-    ap.add_argument("dst")
+    ap.add_argument("dst", nargs="?",
+                    help="omit together with --check-source to verify the input only")
+    ap.add_argument("--check-source", action="store_true",
+                    help="verify your released file against the spec and exit without writing")
     a = ap.parse_args()
+    global CHECK_ONLY
+    CHECK_ONLY = a.check_source
+    if not CHECK_ONLY and a.dst is None:
+        die("give an output path, or pass --check-source to only verify the input")
     spec = load_spec(pathlib.Path(a.spec))
     print(f"variant {spec['variant_id']}  format {spec['format']}", flush=True)
     fn = {"lmdb": do_lmdb, "json_labels": do_json_labels, "tsv": do_table, "csv": do_table,
           "smiles_dir": do_smiles_dir}.get(spec["format"])
     if fn is None:
         die(f"unsupported format {spec['format']!r}")
-    fn(spec, pathlib.Path(a.src), pathlib.Path(a.dst))
+    fn(spec, pathlib.Path(a.src), pathlib.Path(a.dst) if a.dst else pathlib.Path(os.devnull))
     return 0
 
 

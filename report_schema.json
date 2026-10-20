@@ -151,20 +151,25 @@
             "type": "object",
             "required": [
               "path",
-              "sha256"
+              "content_digest"
             ],
             "properties": {
               "path": {
                 "type": "string"
               },
               "sha256": {
-                "type": "string"
+                "type": "string",
+                "description": "deprecated alias of content_digest; prefer content_digest"
               },
               "n_rows": {
                 "type": "integer"
               },
               "n_groups": {
                 "type": "integer"
+              },
+              "content_digest": {
+                "type": "string",
+                "description": "the digest apply_variant.py printed for this file, in full"
               }
             }
           }
@@ -231,8 +236,21 @@
               },
               "relative_gap_pct": {
                 "type": "number"
+              },
+              "gate": {
+                "type": "boolean",
+                "description": "true on exactly one result at A2_reproduce: the benchmark and metric your sheet told you to name. The 10 % gate applies to this one alone."
               }
-            }
+            },
+            "required": [
+              "metric",
+              "source",
+              "value"
+            ]
+          },
+          "bedroc_alpha": {
+            "type": "number",
+            "description": "the alpha your code passes to CalcBEDROC (80.5 and 85 are both in use upstream). Read it out of the code; a bedroc at one alpha is not comparable with a bedroc at another."
           }
         }
       }

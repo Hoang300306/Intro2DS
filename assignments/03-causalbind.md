@@ -80,7 +80,24 @@ Then produce `code/frozen.sha256` — a `sha256sum` listing of the files that co
 benchmarks. For this repository that means the test task and its metric computation. Err on the side of listing too many files.
 
 **Generate it once, here, and never regenerate it.** CI uses it to detect whether the evaluation
-path moved under your feet between checkpoints.
+path moved under your feet between checkpoints. If your repository prints only macro means and you
+need the per-target dump that contract rule 3 allows, **apply it before you generate this file** —
+otherwise the checksum describes code that never scored anything.
+
+### Verify your download now
+
+Your variants are built from the released training file, and the applier checks your copy against
+the digest we recorded before it writes anything. Do that check **here**, while it is free:
+
+```bash
+python tools/apply_variant.py --check-source <one of your specs> <your released training file>
+```
+
+It verifies and exits without writing. Put the digest it prints in `summary.json` under
+`environment.source_digest_ok`, or quote it in `REPORT.md`.
+
+Checking at checkpoint A rather than at C is the point: a release that differs from ours fails this
+in minutes, instead of after you have paid for a full checkpoint-B run.
 
 **If a pin no longer resolves**, move it to the nearest published release of the same line, record
 it in `code/changes.diff` with its one-line justification, and carry on — a pinned pre-release that
@@ -103,6 +120,10 @@ itself leads with** for that benchmark, and `published_reference.source` is the 
 appears in. Decide that before you compute your gap — the gate applies to the metric you named, so
 picking it afterwards would just be choosing whichever number happens to pass.
 
+Mark it: set `published_reference.gate = true` on **exactly one** result. CI rejects zero and
+rejects two. Every other benchmark you score still reports its `relative_gap_pct`, and none of them
+is gated — so scoring more than you were asked to can never block you.
+
 **The gate is 10 % relative on that metric.** Outside it: open an issue with your evidence and stop.
 Do not go on to A3. A documented non-reproduction is a real result and is not your fault.
 
@@ -114,8 +135,9 @@ Deliver `summary.json`, `per_target.csv` and `log.txt`.
 computes them**; leave a column empty where it does not, and say which in `REPORT.md`. Do not invent
 a metric your repository does not compute, and do not quietly substitute a different one.
 
-**Also record the BEDROC alpha your code uses.** Implementations differ — 80.5 and 85 are both in
-use — and one is not comparable with the other. Read it out of the code, do not assume it.
+**Also record the BEDROC alpha your code uses**, as `results[].bedroc_alpha`. Implementations
+differ — 80.5 and 85 are both in use — and one is not comparable with the other. Read it out of the
+code, do not assume it.
 
 **And record the SHA256 of the checkpoint file you scored.** Some of these repositories load each
 other's checkpoints without raising anything at all, so a mix-up produces numbers rather than an
@@ -227,8 +249,10 @@ Then, for each variant:
 
 1. Retrain with **the same seed, configuration, checkpoint rule and code as checkpoint B**. The input
    file is the only thing that changes (contract rule 6).
-2. Record `split_id` and the digests the script printed in `summary.json`. CI compares them against
-   `splits/MANIFEST.json`.
+2. Record `split_id` in `summary.json`, and one `training_data.files` entry per file you built,
+   each with `path` and `content_digest` — the full digest the script printed, not its first
+   characters. CI compares every one against `splits/MANIFEST.json` and now rejects a missing
+   entry, so list all of your files, not just one.
 3. Deliver `C_retrain_variants/<variant_id>/` with `summary.json`, `per_target.csv` and `log.txt`.
 
 ---

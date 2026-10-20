@@ -36,7 +36,8 @@ target_id,n_actives,n_total,auroc,bedroc,ef_0.005,ef_0.01,ef_0.02,ef_0.05
 A mean cannot be analysed afterwards, and recovering per-target numbers costs the entire run again.
 
 If the upstream script only prints means, add a dump of the per-target values. That is the one diff
-we expect to see, and it is allowed.
+we expect to see, and it is allowed. Add it **before** you generate `code/frozen.sha256`, so the
+checksum covers the code that actually produced your numbers, and leave it untouched afterwards.
 
 ## 4. State your checkpoint selection rule
 
@@ -44,7 +45,9 @@ Models differ: some evaluate the best epoch, some an average of the last several
 `summary.json` as `checkpoint_rule`, taken from what the repository or paper specifies, and give the
 source in `checkpoint_rule_source`.
 
-**If upstream is ambiguous, report both** `best` and `avg_last10`, as two runs.
+**If upstream is ambiguous, score both** `best` and `avg_last10` — two scorings of the one training
+run, not two trainings. Put the rule you are reporting in `checkpoint_rule` and the second set of
+numbers in `REPORT.md`.
 
 Comparing a best-epoch checkpoint against an averaged one compares two recipes, not two training
 sets. This has silently wasted whole runs.

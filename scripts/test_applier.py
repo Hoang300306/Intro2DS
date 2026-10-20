@@ -75,19 +75,42 @@ for label, key in (("blend", "assay_id"), ("pdbbind", "uniprot")):
             r["uniprot"] = "a0"
     src2 = T2 / f"{label}.json"
     src2.write_text(json.dumps(data))
-    ident = [(r.get("assay_id") or r.get("uniprot") or "", len(r["ligands"])) for r in data]
+    ident = [m.json_ident(r) for r in data]
     keepmap = {0: [0, 2], 1: [1], 4: [0, 1, 2]}
+    kept = [{**r, "ligands": [r["ligands"][j] for j in keepmap[i]]}
+            for i, r in enumerate(data) if i in keepmap]
     sp2 = T2 / f"{label}.spec.json.gz"
     sp2.write_bytes(gzip.compress(json.dumps({
         "variant_id": f"t_{label}", "format": "json_labels", "operation": "keep_entry_ligands",
         "ligand_keep": {str(k): v for k, v in keepmap.items()},
         "source": {"file": src2.name, "n_records": len(data),
                    "content_digest": m.content_digest_records(ident)},
-        "expected_output": {"n_records": 3, "n_rows": 6}}).encode()))
+        "expected_output": {"n_records": 3, "n_rows": 6,
+                            "content_digest": m.content_digest_records(
+                                [m.json_ident(r) for r in kept])}}).encode()))
     rc, o = run([str(sp2), str(src2), str(T2 / f"{label}.out.json")])
     print(f"[{label}] rc {rc}"); print(o)
     assert rc == 0 and "VERIFIED" in o, o
     got = json.load(open(T2 / f"{label}.out.json"))
     assert [len(r["ligands"]) for r in got] == [2, 1, 3], got
+
+print("\n--- 7. json_labels: same shape, one molecule changed, must be rejected")
+data = [{"uniprot": "a0", "ligands": [{"smi": f"C{i}{j}"} for j in range(3)]} for i in range(6)]
+good = T2 / "good.json"; good.write_text(json.dumps(data))
+spec = {"variant_id": "t_strict", "format": "json_labels", "operation": "keep_entry_ligands",
+        "ligand_keep": {"0": [0]},
+        "source": {"file": "good.json", "n_records": 6,
+                   "content_digest": m.content_digest_records([m.json_ident(r) for r in data])},
+        "expected_output": {"n_records": 1, "n_rows": 1}}
+sp3 = T2 / "strict.json.gz"; sp3.write_bytes(gzip.compress(json.dumps(spec).encode()))
+rc, o = run([str(sp3), str(good), str(T2 / "ok.json")])
+assert rc == 0, o
+data[3]["ligands"][1]["smi"] = "N"          # same entry count, same ligand counts
+bad3 = T2 / "bad.json"; bad3.write_text(json.dumps(data))
+rc, o = run([str(sp3), str(bad3), str(T2 / "never.json")])
+print("rc", rc); print(o.strip()[-220:])
+assert rc == 2 and "source content digest mismatch" in o and not (T2 / "never.json").exists()
+print("-> a swapped molecule is caught, which the old count-only digest would have passed")
+
 shutil.rmtree(T2, ignore_errors=True)
 print("\nALL JSON_LABELS TESTS PASS")

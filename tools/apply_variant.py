@@ -155,10 +155,23 @@ def do_lmdb(spec: dict, src: pathlib.Path, dst: pathlib.Path) -> None:
 
 
 # ---------------------------------------------------------------- json label lists
+def json_ident(rec: dict) -> tuple:
+    """One record, as the digest sees it: its identifier and the SMILES it carries.
+
+    The identifier alone is not enough. The PDBbind label file has no id field at all -- its
+    records carry only `pockets`, `uniprot` and `sequence`, and the same uniprot appears in up to
+    378 of them -- so a digest over identifiers and ligand counts would accept a file with the
+    same shape and different molecules, which is the one thing this check exists to catch. The
+    SMILES are sorted, so the digest does not depend on the order ligands happen to be stored in.
+    """
+    ligs = rec.get("ligands") or []
+    return (str(rec.get("assay_id") or rec.get("uniprot") or ""),
+            *sorted(str(l.get("smi")) if isinstance(l, dict) else str(l) for l in ligs))
+
+
 def do_json_labels(spec: dict, src: pathlib.Path, dst: pathlib.Path) -> None:
     data = json.load(open(src))
-    ident = [(r.get("assay_id") or r.get("uniprot") or "", len(r.get("ligands") or []))
-             for r in data]
+    ident = [json_ident(r) for r in data]
     exp = spec["source"]
     if len(data) != exp["n_records"]:
         die(f"your file has {len(data):,} entries, the spec expects {exp['n_records']:,}")
@@ -182,11 +195,12 @@ def do_json_labels(spec: dict, src: pathlib.Path, dst: pathlib.Path) -> None:
     json.dump(out, open(dst, "w"))
     rows = sum(len(r.get("ligands") or []) for r in out)
     want = spec["expected_output"]
-    if len(out) != want["n_records"] or rows != want["n_rows"]:
-        die(f"output mismatch: {len(out):,}/{rows:,} entries/rows vs "
-            f"{want['n_records']:,}/{want['n_rows']:,}")
-    out_dig = content_digest_records(
-        [(r.get("assay_id") or r.get("uniprot") or "", len(r.get("ligands") or [])) for r in out])
+    out_dig = content_digest_records([json_ident(r) for r in out])
+    if (len(out) != want["n_records"] or rows != want["n_rows"]
+            or out_dig != want.get("content_digest", out_dig)):
+        die(f"output mismatch\n  entries/rows {len(out):,}/{rows:,} vs "
+            f"{want['n_records']:,}/{want['n_rows']:,}"
+            f"\n  digest {out_dig}\n         {want.get('content_digest')}")
     print(f"wrote {dst}  {len(out):,} entries / {rows:,} rows  digest {out_dig}  VERIFIED",
           flush=True)
 

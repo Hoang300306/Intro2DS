@@ -177,26 +177,26 @@
     "corpus": "pocketaffdb",
     "files": [
       {
-        "content_digest": "4e0a385d31ab950249f627dbcdc57aacb9212c9e1328cef2c57c56944cd8a0c0",
+        "content_digest": "ac5654805be3883e957a7eacf9603c50f7b9f0f550c31826d1da21e93dd6a18e",
         "format": "json_labels",
         "n_records": 20136,
         "n_rows": 509436,
         "replaces_file": "train_label_blend_seq_full.json",
-        "source_content_digest": "fb92e473c05d3f1fe0598117b7bc717a77f2dcc96012c7cc49e7437605f654c8",
+        "source_content_digest": "9f9df3bbb40393a0e0952db324690ceeda67cd0be336fd72d68a54b9eab0ab5a",
         "source_n_records": 26748,
         "spec": "splits/specs/pocketaffdb_ligandish/pocketaffdb_ligandish__train_label_blend_seq_full.json.gz",
-        "spec_bytes": 245083
+        "spec_bytes": 245086
       },
       {
-        "content_digest": "69765b6c59731ed95458fb5ba27f64d18e1a1612c26bdedbfd81103f17709ef0",
+        "content_digest": "333f47d118822d16a437ae12d9b7d996ce848641f8077879bef46bfcbae59560",
         "format": "json_labels",
         "n_records": 13882,
         "n_rows": 13882,
         "replaces_file": "train_label_pdbbind_seq.json",
-        "source_content_digest": "793be615eb0e0c8a79573dc772560b47be770b25aa8333f19cf924f0959ae927",
+        "source_content_digest": "a59bd2161d1a2fd2cc430ab374fb76c33eb94f61109b6fbeafed9fecc64dcdd6",
         "source_n_records": 16744,
         "spec": "splits/specs/pocketaffdb_ligandish/pocketaffdb_ligandish__train_label_pdbbind_seq.json.gz",
-        "spec_bytes": 32534
+        "spec_bytes": 32531
       }
     ],
     "note": "Build this yourself with tools/apply_variant.py from the released training file you already have. The script verifies your copy against source_content_digest before writing anything, and its own output against content_digest afterwards. If either check fails, stop and open an issue.",
@@ -210,26 +210,26 @@
     "corpus": "pocketaffdb",
     "files": [
       {
-        "content_digest": "38960636fe9596945ae80c6920fc7fd1f91a8698148977bc6e7fba625bd6b79c",
+        "content_digest": "147492d5a61151c098e1534d3f8b911873c141c70f117c1d362e65306c0f80dc",
         "format": "json_labels",
         "n_records": 20136,
         "n_rows": 509436,
         "replaces_file": "train_label_blend_seq_full.json",
-        "source_content_digest": "fb92e473c05d3f1fe0598117b7bc717a77f2dcc96012c7cc49e7437605f654c8",
+        "source_content_digest": "9f9df3bbb40393a0e0952db324690ceeda67cd0be336fd72d68a54b9eab0ab5a",
         "source_n_records": 26748,
         "spec": "splits/specs/pocketaffdb_ligandish_matched/pocketaffdb_ligandish_matched__train_label_blend_seq_full.json.gz",
-        "spec_bytes": 92481
+        "spec_bytes": 92484
       },
       {
-        "content_digest": "4730492ea37270c200bc2361eba8df701a4c29510b0f151a41a09ac3f8c74cb4",
+        "content_digest": "a18187d30e67644ca96ecc0179907c8103a0a2f2207a43c9bdd8d6edb622e646",
         "format": "json_labels",
         "n_records": 13882,
         "n_rows": 13882,
         "replaces_file": "train_label_pdbbind_seq.json",
-        "source_content_digest": "793be615eb0e0c8a79573dc772560b47be770b25aa8333f19cf924f0959ae927",
+        "source_content_digest": "a59bd2161d1a2fd2cc430ab374fb76c33eb94f61109b6fbeafed9fecc64dcdd6",
         "source_n_records": 16744,
         "spec": "splits/specs/pocketaffdb_ligandish_matched/pocketaffdb_ligandish_matched__train_label_pdbbind_seq.json.gz",
-        "spec_bytes": 32549
+        "spec_bytes": 32548
       }
     ],
     "note": "Build this yourself with tools/apply_variant.py from the released training file you already have. The script verifies your copy against source_content_digest before writing anything, and its own output against content_digest afterwards. If either check fails, stop and open an issue.",

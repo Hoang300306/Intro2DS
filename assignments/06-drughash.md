@@ -50,6 +50,8 @@ This model learns binary hash codes and ranks by Hamming distance, so its metric
 
 The README mentions optional HomoAug augmentation. **Do not use it** unless the paper's main results do; if they do, use it identically at B and C and say so.
 
+**A session that dies does not cost you the run.** Uni-Core restores from `checkpoint_last.pt` in `--save-dir` on its own: `restore_file` defaults to that name, and because none of the `--reset-*` flags are set it brings back the optimizer, the LR scheduler and the dataloader position, not just the weights. So B and C can be run in chunks — as long as **`--save-dir` lives on storage that survives the session**, and you never delete `checkpoint_last.pt`. Say in your report how many times each arm was resumed.
+
 **The README has no numbers — its results are images.** `published_reference` must come from the paper (AAAI 2025, 39:17041-17049, or arXiv 2407.19790). Do not read a value off `figures/accuracy.png`.
 
 **`test.sh` and `retrieval.sh` ship with the authors' own absolute paths** (`/home/hanj/...`). Replace them. Note also that the LIT-PCBA directory the code reads is `./data/lib-pcba/raw/lit_pcba/` — that spelling is in the source, so create it exactly, and keep the benchmark directories free of stray files, since every entry `os.listdir` returns is treated as a target.

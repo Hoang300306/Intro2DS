@@ -58,6 +58,8 @@ Only the LB (ligand-based) training data is covered. If the paper's main results
 
 **`python eval.py` as shipped does not evaluate DUD-E or LIT-PCBA.** In `configs/datamodule/test_datasets/test_datasets.yaml` every dataset except `default_vs` is commented out, and `default_vs` is a generic placeholder pointing at a directory that is not a benchmark. Uncomment `dude` and `litpcba` and drop `default_vs` from the list; that edit belongs in `code/changes.diff` with its one-line justification. Run verbatim it would hand you confident numbers for the wrong data.
 
+**A session that dies does not cost you the run**, but you have to ask for the resume: `python train.py checkpoint_name=<name>` continues from a saved checkpoint, as the README documents. Keep `checkpoints/ConGLUDe/` on storage that survives the session, and say in your report how many times each arm was resumed.
+
 **Pass `logger=null` when you train.** `configs/train.yaml` defaults to `logger: wb`, so a training run will try to log to Weights & Biases and will upload the resolved config, variant name included, to whatever workspace is configured on the machine.
 
 **The seed is a Hydra field**: `python train.py seed=0`. Note that `configs/trainer/default.yaml` sets `deterministic: false`, so two runs with the same seed are not bitwise identical. Do not try to fix that — record it as a limitation.

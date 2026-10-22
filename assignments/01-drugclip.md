@@ -48,6 +48,8 @@ We hold the released `train_no_test_af/train.lmdb` and confirmed it contains 66,
 
 This model is the origin of a family of later methods, so its evaluation code is the one several other repositories inherit. Be especially careful not to modify it.
 
+**A session that dies does not cost you the run.** Uni-Core restores from `checkpoint_last.pt` in `--save-dir` on its own: `restore_file` defaults to that name, and because none of the `--reset-*` flags are set it brings back the optimizer, the LR scheduler and the dataloader position, not just the weights. So B and C can be run in chunks — as long as **`--save-dir` lives on storage that survives the session**, and you never delete `checkpoint_last.pt`. Say in your report how many times each arm was resumed. If you are on one GPU instead of four, that is what makes the long wall clock survivable.
+
 **`test_dude` prints only the macro means.** It loops over targets, collects `auc_list` and the EF dictionaries, and prints `np.mean` of each — the per-target values and the target names never reach the log. `per_target.csv` therefore needs the print-only patch described under A2. Print the target name inside the loop: the target order comes from `os.listdir`, which is filesystem order and not reproducible across machines, so position in the list is not an id.
 
 For the same reason, make sure `./data/DUD-E/raw/all/` and `./data/lit_pcba/` contain **only** target directories. Both are read with `os.listdir` and every entry is treated as a target, so a stray `.DS_Store` or a leftover archive becomes a target and either crashes the run or lands in the mean.

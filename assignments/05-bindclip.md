@@ -52,6 +52,8 @@ There are **two** released training versions (random and UniMol hard negatives) 
 
 So although four variants are listed below, **you run only the two matching your chosen version**: two retrains at checkpoint C, not four. The other two exist so that whichever version you pick is already prepared; leave them alone and say in your report which pair you used. Only the primary ligand field was filtered when the variants were built; `decoy_smi` was left untouched, deliberately, so that your variants differ from the other corpora's in one way only.
 
+**A session that dies does not cost you the run.** Uni-Core restores from `checkpoint_last.pt` in `--save-dir` on its own: `restore_file` defaults to that name, and because none of the `--reset-*` flags are set it brings back the optimizer, the LR scheduler and the dataloader position, not just the weights. So B and C can be run in chunks — as long as **`--save-dir` lives on storage that survives the session**, and you never delete `checkpoint_last.pt`. Say in your report how many times each arm was resumed.
+
 **The README invites you to score both released checkpoints and keep whichever performs best for your use case. Do not do that here.** Choosing a checkpoint by its score on the benchmark you are reporting is how a number stops meaning anything. Pick the one the paper's main table used, decide that before you score, and if you score both, report both and say which is which.
 
 **The README carries no numeric results table** — the paper is the only source for your `published_reference`, at `10.1145/3770855.3819040`. Do not read a value off a figure.

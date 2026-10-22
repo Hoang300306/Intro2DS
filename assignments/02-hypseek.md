@@ -62,6 +62,8 @@ One thing to watch in that evaluator: `test_dude` wraps each target in `except V
 
 **`train.sh` takes a mode, and you want `CASF`.** `bash train.sh CASF` validates on CASF-2016 and sets `--best-checkpoint-metric valid_bedroc --maximize-best-checkpoint-metric`, so the repository's own rule is best-by-`valid_bedroc`; score that and say so. `bash train.sh FEP` passes `--disable-validation` and sets no best-checkpoint metric, so it produces no best checkpoint at all — it is the affinity-ranking configuration, not the screening one.
 
+**A session that dies does not cost you the run.** Uni-Core restores from `checkpoint_last.pt` in `--save-dir` on its own: `restore_file` defaults to that name, and because none of the `--reset-*` flags are set it brings back the optimizer, the LR scheduler and the dataloader position, not just the weights. So B and C can be run in chunks — as long as **`--save-dir` lives on storage that survives the session**, and you never delete `checkpoint_last.pt`. Say in your report how many times each arm was resumed. If you are on one GPU instead of four, that is what makes the long wall clock survivable.
+
 **Two placeholders will stop you before anything runs**: `save_root="/save_root"` in `train.sh` is an absolute path at the filesystem root, which `mkdir -p` cannot create without root, and `DATA_ROOT=/path/test_datasets` in `test.sh` is not a real path. Set both to directories you own.
 
 **`test.sh` runs `pip uninstall -y unimol` on every invocation.** That is deliberate on their side — it forces the local `unimol/` to win on `PYTHONPATH` — but it does mutate your environment, so your A1 `import_test.txt` may stop reproducing after you first evaluate. Note it in `REPORT.md` rather than treating it as a broken environment.

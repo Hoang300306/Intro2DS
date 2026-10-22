@@ -51,7 +51,16 @@ bash scripts/download_data.sh test 2>&1 | tee ~/causalbind_logs/download_test.lo
 md5sum test_datasets/DEKOIS_2.0x.zip
 stat -c %s test_datasets/DEKOIS_2.0x.zip
 ls test_datasets/DEKOIS_2.0x | wc -l
-
+# A2.3b FEP benchmark (JACS-8 + Merck-FEP-8): download_data.sh does not fetch test_datasets/FEP,
+# which DATA.md lists as the source; taken from LigUnity at the commit recorded in A2.1
+git clone --filter=blob:none --no-checkout https://github.com/IDEA-XL/LigUnity.git ~/LigUnity
+cd ~/LigUnity
+git sparse-checkout set test_datasets/FEP
+git checkout 8ae35edba5481aa13de8a5bac6b03c1c1860ef3c
+git rev-parse HEAD
+cp -r test_datasets/FEP ~/CausalBind/test_datasets/FEP
+ls ~/CausalBind/test_datasets/FEP/lmdbs | wc -l
+cd ~/CausalBind
 # A2.4 DUD-E and LIT-PCBA: downloaded by hand in a browser from the LigUnity Google Drive
 # folder https://drive.google.com/drive/folders/1zW1MGpgunynFxTKXC2Q4RgWxZmg6CInV
 # (dude.zip, pcba.zip), saved into ~/CausalBind/test_datasets/
@@ -99,6 +108,30 @@ date | tee -a ~/causalbind_logs/A2_PCBA.log
 cd ~/Intro2DS/submissions/03-causalbind
 mkdir -p A2_reproduce
 python code/make_per_target.py DUD-E ~/causalbind_logs/A2_DUDE.log ~/CausalBind/results/A2_sp_DUDE/DUDE A2_reproduce/per_target_DUDE.csv
+python code/make_per_target.py PCBA ~/causalbind_logs/A2_PCBA.log ~/CausalBind/results/A2_sp_PCBA/PCBA A2_reproduce/per_target_PCBA.csv
+cd ~/CausalBind
+# A2.11 DEKOIS 2.0 (reported, not gated); all 81 targets are scored, the 9-target OOD subset of Table A13 is taken from them
+date | tee ~/causalbind_logs/A2_DEKOIS.log
+bash scripts/test.sh sp DEKOIS checkpoints/causalbind_sp.pt results/A2_sp_DEKOIS 2>&1 | tee -a ~/causalbind_logs/A2_DEKOIS.log
+echo "exit ${PIPESTATUS[0]}" | tee -a ~/causalbind_logs/A2_DEKOIS.log
+date | tee -a ~/causalbind_logs/A2_DEKOIS.log
+# A2.12 DEKOIS per-target CSVs: all 81 targets, and the 9-target OOD subset of Table A13 (p. 47) filtered from it
+cd ~/Intro2DS/submissions/03-causalbind
+python code/make_per_target.py DEKOIS ~/causalbind_logs/A2_DEKOIS.log ~/CausalBind/results/A2_sp_DEKOIS/DEKOIS A2_reproduce/per_target_DEKOIS.csv
+(head -1 A2_reproduce/per_target_DEKOIS.csv; grep -E "^(11betahsd1|ace2|adrb2|alr2|cox1|cyp2a6|inha|mmp2|tk)," A2_reproduce/per_target_DEKOIS.csv) > A2_reproduce/per_target_DEKOIS_OOD9.csv
+cd ~/CausalBind
+# A2.13 FEP (reported, not gated); Merck-FEP-8 Pearson r is compared with Table A11 (p. 46)
+date | tee ~/causalbind_logs/A2_FEP.log
+bash scripts/test.sh sp FEP checkpoints/causalbind_sp.pt results/A2_sp_FEP 2>&1 | tee -a ~/causalbind_logs/A2_FEP.log
+echo "exit ${PIPESTATUS[0]}" | tee -a ~/causalbind_logs/A2_FEP.log
+date | tee -a ~/causalbind_logs/A2_FEP.log
+# A2.14 FEP per-target CSVs: all 16 targets, and the Merck-FEP-8 rows of Table A11 (p. 46)
+cd ~/Intro2DS/submissions/03-causalbind
+python code/make_per_target_fep.py ~/causalbind_logs/A2_FEP.log ~/CausalBind/results/A2_sp_FEP/FEP A2_reproduce/per_target_FEP.csv MERCK A2_reproduce/per_target_FEP_Merck8.csv
+cd ~/CausalBind
+# A2.15 log.txt: the four scoring logs, unedited, one after another
+cd ~/Intro2DS/submissions/03-causalbind
+for f in DUDE PCBA DEKOIS FEP; do echo "==== ~/causalbind_logs/A2_$f.log ===="; cat ~/causalbind_logs/A2_$f.log; done > A2_reproduce/log.txt
 cd ~/CausalBind
 # ---- A3: smoke train (1 epoch, small subset) ----------------------------------------------
 

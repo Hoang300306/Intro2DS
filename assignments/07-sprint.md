@@ -4,7 +4,7 @@
 |---|---|
 | **Model** | SPRINT (MLSB @ NeurIPS 2024) |
 | **Upstream repository** | https://github.com/abhinadduri/panspecies-dti |
-| **Benchmarks** | the DTI benchmarks the repository evaluates on (`--task`), and the Lit-PCBA target list in `targets.txt`; list in your report exactly what you ran |
+| **Benchmarks** | LIT-PCBA only, over the full target list (`--target-protein-id "all"`). The repository also evaluates DAVIS, BindingDB, BIOSNAP and the TDC leaderboard, but each needs a checkpoint trained on that task and only the MERGED/LIT-PCBA models are released, so those are out of scope — do not score them |
 | **Your directory** | `submissions/07-sprint/` |
 | **Your branch** | `sub/07-sprint` |
 
@@ -48,6 +48,10 @@ We hold the released corpus and confirmed the training files are TSVs of `ligand
 
 **This is the largest corpus in the study: about 64.9 million training rows.** Your A3 cost extrapolation matters more here than for anyone else, because we will decide the scope of your B and C runs from it. If a full run is impractical, say so at A3 with your numbers and we will reduce the scope — that is a normal outcome, not a failure.
 
+**For A3, a "group" here is a target, not a slice of rows.** Take a few dozen of the 312 targets that carry positives and keep every row belonging to them, so the positive-to-negative structure of a target survives. Download the full MERGED corpus even so — `--check-source` needs the whole file — and **leave the MMseqs2 filter at 0.9**: it is part of the path you are smoke-testing and it is cheap next to training.
+
+**Checkpoint B cannot be resumed.** `train.py` calls `trainer.fit(model, datamodule=datamodule)` with no `ckpt_path`, so Lightning cannot restore the optimizer, the schedule or the epoch counter; `--checkpoint` only loads weights and then starts a fresh schedule from epoch 0, which is a different recipe. An interrupted run has to be started again. Say in your A3 estimate how many uninterrupted hours you can actually get, because that, not the per-epoch time, is what decides whether B is feasible for you.
+
 This model predicts binary interaction from sequence rather than ranking within a pocket, so the variants were built to preserve the **positive-to-negative ratio exactly** (identical to eight decimal places between the two variants). Do not resample or rebalance the classes: that would change the thing the variants hold fixed.
 
 **The README's own SPRINT command omits `--task merged`, and the config default is `task: davis`.** Run verbatim it trains on DAVIS, your variant file is never opened, and nothing anywhere says so. Pass the task explicitly. `configs/saprot_agg_config.yaml` also defaults to `model_size: "small"` and `epochs: 250`, so the flags are not optional decoration: without them you train the wrong model for sixteen times the budget. The command is
@@ -58,6 +62,8 @@ ultrafast-train --exp-id LitPCBA --config configs/saprot_agg_config.yaml \
     --target-protein-id "all" --similarity-threshold 0.9 \
     --eval-pcba --no-wandb --replicate 0
 ```
+
+**There is no evaluation-only entry point, so A2 needs care.** `--eval-pcba` adds a callback whose hook is `on_validation_epoch_end`, and nothing in the repository calls `trainer.validate()`. To score the released checkpoint you therefore start a run with `--checkpoint <the released file>` and read the first `[PCBA Eval - Epoch 0]` block the callback prints. Lightning runs a sanity-check validation **before** the first optimizer step, so that block should be the released weights and nothing else — but **verify it from your log** and say in `REPORT.md` whether any training step preceded it. If the first block only appears after an epoch of training, then the released checkpoint cannot be scored through this repository at all: open an issue, and A2 becomes a `blocked` gate. Keep it cheap with `--epochs 1` and leave `--ship-model` off at A2.
 
 **The seed flag is `--replicate` (alias `--r`), not `--seed`.** `train.py` calls `torch.manual_seed(config.replicate)` and `np.random.seed(config.replicate)`; the default is 0. Pass it explicitly and keep it identical at B and C. `--no-wandb` matters too: without it the run logs to the project `ConPlexTrain` from the config.
 

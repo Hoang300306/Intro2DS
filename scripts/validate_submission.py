@@ -247,10 +247,19 @@ def validate(sub: pathlib.Path) -> Problems:
                               "others are reported, not gated")
                 for r in res:
                     ref = r.get("published_reference") or {}
+                    if ref.get("blocked"):
+                        # no published number is reachable from published artifacts: the gate is
+                        # satisfied by saying so, which is itself a result worth recording
+                        if len(ref["blocked"].split()) < 8:
+                            pr.add(s, f"{r.get('benchmark')}: published_reference.blocked needs a "
+                                      "real explanation -- which artifact is missing, and where "
+                                      "you looked for it")
+                        continue
                     if "relative_gap_pct" not in ref:
                         pr.add(s, f"{r.get('benchmark')}: published_reference.relative_gap_pct is "
                                   "required at stage 2 -- state the paper's number, where it comes "
-                                  "from, and your gap")
+                                  "from, and your gap. If no published number is reachable from "
+                                  "published artifacts, say that in published_reference.blocked")
                     elif ref.get("gate") and abs(ref["relative_gap_pct"]) > 10:
                         pr.add(s, f"{r.get('benchmark')}: reproduction is "
                                   f"{ref['relative_gap_pct']:+.1f} % from the published value, "

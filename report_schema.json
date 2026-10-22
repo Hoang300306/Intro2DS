@@ -240,6 +240,10 @@
               "gate": {
                 "type": "boolean",
                 "description": "true on exactly one result at A2_reproduce: the benchmark and metric your sheet told you to name. The 10 % gate applies to this one alone."
+              },
+              "blocked": {
+                "type": "string",
+                "description": "set only when no published number is reachable from published artifacts -- say which artifact is missing and where you looked. The gated entry then passes on this explanation instead of on relative_gap_pct, and relative_gap_pct is not required. Never use this because your number came out wrong."
               }
             },
             "required": [

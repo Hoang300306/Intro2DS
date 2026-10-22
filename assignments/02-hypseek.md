@@ -52,7 +52,13 @@ The training task also reads `test_datasets/dude.json`, `PCBA.json` and `dekois.
 
 **The screening checkpoint the README names does not exist publicly, and that is a result, not your problem.** `README` tells you to score DUD-E and LIT-PCBA with `checkpoint_avg_41-50_vs.pt` and FEP with `checkpoint_avg_41-50_rk.pt`, links neither, and the repository has no releases. Of the two, only `checkpoint_avg_41-50_rk.pt` was ever published, on `huggingface.co/THU-ATOM/HypSeek-AIRDD`; we checked that repository and the LigUnity ones, and there is no `_vs` checkpoint anywhere public. **Do not substitute one.** Not the ranking checkpoint for screening, and not LigUnity's `fengb/LigUnity_VS` weights, which are a different architecture.
 
-So A2 changes shape for this model only, and this is the whole of it: **gate on FEP with the ranking checkpoint.** Score `bash test.sh FEP three_hybrid_model <checkpoint_avg_41-50_rk.pt> <results>`, name the paper's FEP metric in `published_reference` with `gate = true`, and the 10 % rule applies to that. It proves the same thing the DUD-E gate would have proved — that your environment and the repository's own evaluation path reproduce a published number — using the artifact that exists. The paper leads with a JACS affinity-ranking correlation of 0.7239 (against 0.5774 for the method it improves on), so that is the number to aim at — but take the exact metric and value from the paper's own table rather than from its abstract, and say which table. Then score DUD-E, DEKOIS and LIT-PCBA with the same checkpoint as well, report them, and say plainly in `REPORT.md` that no screening checkpoint was available, so those three are not comparable with the paper — the DUD-E early enrichment of 51.44 it reports is not reachable with the ranking checkpoint, and the gap you measure there is a documented fact about the release, not a failure of yours. Checkpoints B and C are unaffected: they train from scratch and never needed a released checkpoint.
+**The affinity-ranking side is blocked too**, so do not go looking there either. `test_fep_target` reads `bench/fep/<target>/result_dG.csv` and `bench/jacs_set/<target>_edges.csv` (or `bench/merck/...`) before it computes anything, and neither HypSeek nor LigUnity publishes those files. The LMDBs and `FEP/fep_labels.json` are published and do match each other; the CSVs the evaluator needs are not. **Do not rebuild them** from Uni-FEP-Benchmarks or the Schrodinger set: the ligand SMILES do not correspond one-to-one, and a correlation computed on a rebuilt benchmark is not a reproduction of the published one.
+
+So **A2 for this model records a blocked reproduction**, which is the result. Score the published `checkpoint_avg_41-50_rk.pt` with the unmodified evaluator on DUD-E, DEKOIS and LIT-PCBA — those three read only published LMDBs plus the index JSONs, so they do run — deliver `per_target.csv` for each, and put the paper's number and your gap in `published_reference` as usual. On the gated entry set `gate = true` together with `blocked`, explaining that the screening checkpoint was never released and the FEP benchmark CSVs were never released, and where you looked. The gate passes on that. What it buys us is what the 10 % rule was protecting: proof that the environment and the evaluation path run end to end and produce non-degenerate per-target metrics, before anyone pays for a retrain. The numbers themselves are not comparable with the paper — its DUD-E early enrichment of 51.44 comes from the checkpoint that does not exist — and `REPORT.md` must say so in those words.
+
+Checkpoints B and C are unaffected, and this is why they matter more here than elsewhere: they train from scratch, they never needed a released checkpoint, and the comparison between them is internal to your own runs.
+
+One thing to watch in that evaluator: `test_dude` wraps each target in `except ValueError` and **skips it with only a warning** when a pocket comes back empty. A macro mean over 99 targets looks exactly like one over 102. Count the targets that actually scored, put that number in `n_targets`, and grep your log for `Skipping`.
 
 **`train.sh` takes a mode, and you want `CASF`.** `bash train.sh CASF` validates on CASF-2016 and sets `--best-checkpoint-metric valid_bedroc --maximize-best-checkpoint-metric`, so the repository's own rule is best-by-`valid_bedroc`; score that and say so. `bash train.sh FEP` passes `--disable-validation` and sets no best-checkpoint metric, so it produces no best checkpoint at all — it is the affinity-ranking configuration, not the screening one.
 
@@ -132,6 +138,14 @@ is gated — so scoring more than you were asked to can never block you.
 
 **The gate is 10 % relative on that metric.** Outside it: open an issue with your evidence and stop.
 Do not go on to A3. A documented non-reproduction is a real result and is not your fault.
+
+**If no published number is reachable from published artifacts at all** — the checkpoint the paper
+scored was never released, or the benchmark files its evaluator reads were never released — then say
+so in `published_reference.blocked` on the gated entry, with which artifact is missing and where you
+looked. That entry then passes on the explanation instead of on a gap. Do not reconstruct the
+missing artifact from a third-party source and compare that to the paper: a number from a rebuilt
+benchmark is not a reproduction, and presenting it as one would be worse than reporting nothing.
+Open an issue first either way.
 
 Deliver `summary.json`, `per_target.csv` and `log.txt`.
 

@@ -102,3 +102,44 @@ assert "does not match the published manifest" not in out and "missing a verifie
 print("\n-> accepted")
 shutil.rmtree(S, ignore_errors=True)
 print("\nALL VALIDATOR TESTS PASS")
+
+
+print("\n" + "=" * 70, "\nCASE 4: a gate blocked by an unpublished artifact passes on its reason\n", "=" * 70)
+fresh()
+for st in ("A1_env", "A3_smoke"):
+    (S / st / "summary.json").write_text(json.dumps(summ(st)))
+hdr2 = ",".join(["target_id", "n_actives", "n_total", "auroc", "bedroc",
+                 "ef_0.005", "ef_0.01", "ef_0.02", "ef_0.05"])
+csv2 = hdr2 + "\n" + "\n".join(f"t{i},5,100,0.8,0.5,1,2,3,4" for i in range(102)) + "\n"
+(S / "A2_reproduce" / "pt.csv").write_text(csv2)
+(S / "A2_reproduce" / "log.txt").write_text("ran\n")
+REASON = ("the checkpoint the paper scored was never released and the benchmark CSVs its "
+          "evaluator reads were never released either; searched the repository releases and "
+          "every related HuggingFace repository")
+
+
+def a2(ref):
+    (S / "A2_reproduce" / "summary.json").write_text(json.dumps(summ(
+        "A2_reproduce", results=[{"benchmark": "DUD-E", "n_targets": 102,
+                                  "per_target_csv": "pt.csv", "metrics": {},
+                                  "published_reference": ref}])))
+    return run()
+
+
+rc, out = a2({"metric": "ef_0.01", "value": 51.44, "source": "Table 2",
+              "gate": True, "blocked": REASON})
+assert "relative_gap_pct is" not in out, out
+assert "gate = true" not in out, out
+assert "blocked needs a real explanation" not in out, out
+print("-> accepted with no gap at all, because the reason is on the record")
+
+rc, out = a2({"metric": "ef_0.01", "value": 51.44, "source": "Table 2",
+              "gate": True, "blocked": "not available"})
+assert "blocked needs a real explanation" in out, out
+print("-> a one-line excuse is rejected")
+
+rc, out = a2({"metric": "ef_0.01", "value": 51.44, "source": "Table 2", "gate": True})
+assert "relative_gap_pct is" in out, out
+print("-> and omitting both is still a complaint")
+shutil.rmtree(S, ignore_errors=True)
+print("\nALL BLOCKED-GATE TESTS PASS")

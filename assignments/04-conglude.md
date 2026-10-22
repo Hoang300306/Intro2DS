@@ -139,6 +139,14 @@ is gated — so scoring more than you were asked to can never block you.
 **The gate is 10 % relative on that metric.** Outside it: open an issue with your evidence and stop.
 Do not go on to A3. A documented non-reproduction is a real result and is not your fault.
 
+**If no published number is reachable from published artifacts at all** — the checkpoint the paper
+scored was never released, or the benchmark files its evaluator reads were never released — then say
+so in `published_reference.blocked` on the gated entry, with which artifact is missing and where you
+looked. That entry then passes on the explanation instead of on a gap. Do not reconstruct the
+missing artifact from a third-party source and compare that to the paper: a number from a rebuilt
+benchmark is not a reproduction, and presenting it as one would be worse than reporting nothing.
+Open an issue first either way.
+
 Deliver `summary.json`, `per_target.csv` and `log.txt`.
 
 `per_target.csv` has one row per benchmark target and is **not optional** (contract rule 3).

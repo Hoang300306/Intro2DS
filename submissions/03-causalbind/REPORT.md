@@ -62,7 +62,12 @@ you ran and what came out.
 
 ## Problems
 
-"environment.yml pins hf-xet==1.1.5rc1, which is no longer on PyPI, so the pip step of conda env create fails; changed to hf-xet==1.1.5 with the lead's approval (issue #8), recorded in code/changes.diff"
-"The CausalBind README installs Uni-Core from its default branch without a pinned commit; used ace6fae1c8479a9751f2bb1e1d6e4047427bc134"
-"python setup.py install for Uni-Core also fetched setuptools 84.0.0 as an egg; the active setuptools stays 75.8.0, but the exported environment.yml lists setuptools==84.0.0"
-"The pip section of environment.yml replaces 12 conda-installed Jupyter dependencies (e.g. ipython 9.17.1 -> 9.3.0) with its pinned versions"
+- `environment.yml` pins `hf-xet==1.1.5rc1`, which is no longer on PyPI, so the pip step of
+  `conda env create` fails; changed to `hf-xet==1.1.5` with the lead's approval (issue #8),
+  recorded in `code/changes.diff`.
+- The CausalBind README installs Uni-Core from its default branch without a pinned commit;
+  used `ace6fae1c8479a9751f2bb1e1d6e4047427bc134`.
+- `python setup.py install` for Uni-Core also fetched setuptools 84.0.0 as an egg; the active
+  setuptools stays 75.8.0, but the exported `environment.yml` lists `setuptools==84.0.0`.
+- The pip section of `environment.yml` replaces 12 conda-installed Jupyter dependencies
+  (e.g. ipython 9.17.1 → 9.3.0) with its pinned versions.)

@@ -34,9 +34,19 @@ Wall clock about 2.0 h, including the wait for the decision on the hf-xet pin; n
 
 ## A2 — reproducing the published numbers
 
-The published number you compared against, **with the table or section it comes from**, your number,
-and the relative gap. If the gap is outside 10 %, say what you think is responsible and stop here —
-that is a result, not a failure.
+Gate metric, fixed before any scoring: **DUD-E EF@1%**, published value **47.69** for
+CausalBind-SP (Table 1, p. 8 of arXiv:2610.07340; seed 1, last checkpoint, 102 targets,
+confirmed as seed-1 last-checkpoint results by Table A4, p. 40). Gate: |gap| ≤ 10 %,
+i.e. 42.92–52.46.
+
+Why EF@1%: Table 1 lists AUROC first, but the only DUD-E claim in the text is that all
+variants achieve "higher DUD-E AUROC and EF@1%" (p. 8), and the paper names BEDROC80.5 and
+EF@1% as the early-enrichment metrics that matter more in practice (p. 8, p. 36). EF@1% is
+the one metric both stated for DUD-E and in that group.
+
+BEDROC alpha is 80.5 in the paper (p. 36) and in the code (`unimol/tasks/test_task.py`).
+For scale: the paper's multi-seed mean for SP is 47.99 ± 0.39 (Table A16, n = 4), so seed
+noise alone is about 1 %, well inside the gate.
 
 ## A3 — smoke train, and what the real runs will cost
 

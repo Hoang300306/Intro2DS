@@ -255,6 +255,10 @@
           "bedroc_alpha": {
             "type": "number",
             "description": "the alpha your code passes to CalcBEDROC (80.5 and 85 are both in use upstream). Read it out of the code; a bedroc at one alpha is not comparable with a bedroc at another."
+          },
+          "checkpoint_sha256": {
+            "type": "string",
+            "description": "the SHA256 of the checkpoint this benchmark was scored with. Only needed when one stage used more than one checkpoint; otherwise run.checkpoint_sha256 covers it."
           }
         }
       }

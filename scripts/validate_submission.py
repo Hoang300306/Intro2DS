@@ -212,7 +212,10 @@ def validate(sub: pathlib.Path) -> Problems:
         run = summ.get("run") or {}
         if "seed" in run:
             seeds.add(run["seed"])
-        if run.get("checkpoint_rule"):
+        if run.get("checkpoint_rule") and s != "A2_reproduce":
+            # A2 scores a released checkpoint: its rule is whatever the authors did, and demanding
+            # it match the rule used for training would force a false statement about one or the
+            # other. B and C are the pair that has to agree.
             rules.add(run["checkpoint_rule"])
 
         if s in SCORING:
@@ -306,7 +309,8 @@ def validate(sub: pathlib.Path) -> Problems:
         pr.add(sub.name, f"more than one seed across stages ({sorted(seeds)}); checkpoints B "
                          "and C must share a seed")
     if len(rules) > 1:
-        pr.add(sub.name, f"inconsistent checkpoint_rule across stages ({sorted(rules)})")
+        pr.add(sub.name, f"inconsistent checkpoint_rule between training stages ({sorted(rules)}); "
+                         "B and C must select their checkpoint the same way")
     return pr
 
 

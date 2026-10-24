@@ -85,6 +85,10 @@
         "changes_justified": {
           "type": "boolean",
           "description": "true if every hunk is justified in REPORT.md"
+        },
+        "frozen_sha256_file": {
+          "type": "string",
+          "description": "sha256 of code/frozen.sha256 itself. CI compares it across stages: the listing is generated once at checkpoint A and must be identical afterwards. The checksums inside it cover upstream files CI does not hold, so this is what catches a regenerated listing."
         }
       }
     },

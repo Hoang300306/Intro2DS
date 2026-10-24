@@ -143,3 +143,42 @@ assert "relative_gap_pct is" in out, out
 print("-> and omitting both is still a complaint")
 shutil.rmtree(S, ignore_errors=True)
 print("\nALL BLOCKED-GATE TESTS PASS")
+
+
+print("\n" + "=" * 70, "\nCASE 5: the stages must agree about code/frozen.sha256\n", "=" * 70)
+fresh()
+csv3 = hdr2 + "\n" + "\n".join(f"t{i},5,100,0.8,0.5,1,2,3,4" for i in range(102)) + "\n"
+real = __import__("hashlib").sha256((S / "code" / "frozen.sha256").read_bytes()).hexdigest()
+for st in ("A1_env", "A3_smoke"):
+    (S / st / "summary.json").write_text(json.dumps(summ(st, code={
+        "upstream_url": "x", "upstream_commit": "0" * 40, "frozen_sha256_file": real})))
+(S / "A2_reproduce" / "pt.csv").write_text(csv3)
+(S / "A2_reproduce" / "log.txt").write_text("ran\n")
+
+
+def a2f(frozen_claim):
+    (S / "A2_reproduce" / "summary.json").write_text(json.dumps(summ(
+        "A2_reproduce",
+        code={"upstream_url": "x", "upstream_commit": "0" * 40,
+              "frozen_sha256_file": frozen_claim},
+        results=[{"benchmark": "DUD-E", "n_targets": 102, "per_target_csv": "pt.csv",
+                  "metrics": {}, "published_reference": {
+                      "metric": "auroc", "value": 0.8, "source": "T1",
+                      "relative_gap_pct": 1.0, "gate": True}}])))
+    return run()
+
+
+rc, out = a2f(real)
+assert "frozen_sha256_file does not match" not in out and "disagree about" not in out, out
+print("-> the true digest is accepted")
+
+rc, out = a2f("b" * 64)
+assert "frozen_sha256_file does not match" in out, out
+print("-> a digest that does not match the file is caught")
+
+(S / "code" / "frozen.sha256").write_text("deadbeef  only/one/line.py\n")
+rc, out = run()
+assert "usable lines" in out, out
+print("-> and a listing too thin to describe an evaluation path is caught")
+shutil.rmtree(S, ignore_errors=True)
+print("\nALL FROZEN-LISTING TESTS PASS")

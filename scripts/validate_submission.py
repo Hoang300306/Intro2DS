@@ -162,6 +162,13 @@ def validate(sub: pathlib.Path) -> Problems:
 
     # frozen-file fingerprint must be committed at stage 1 and never change afterwards
     frozen = sub / "code" / "frozen.sha256"
+    if frozen.exists():
+        ls = [l for l in frozen.read_text().splitlines() if l.strip()]
+        shaped = [l for l in ls if len(l.split()) >= 2 and len(l.split()[0]) == 64]
+        if len(shaped) < 3:
+            pr.add("code", f"code/frozen.sha256 has {len(shaped)} usable lines; it should be a "
+                           "`sha256sum` listing of the files that compute metrics and load "
+                           "benchmarks, and three is fewer than any of these repositories needs")
     if not frozen.exists():
         pr.add("code", "code/frozen.sha256 is missing; generate it at checkpoint A from the list "
                        "in your assignment and never regenerate it")
@@ -191,7 +198,9 @@ def validate(sub: pathlib.Path) -> Problems:
         else:
             units.append((s, sub / s))
 
-    seeds, rules = set(), set()
+    fz = sub / "code" / "frozen.sha256"
+    frozen_sha = sha256(fz) if fz.exists() else None
+    seeds, rules, frozen_claimed = set(), set(), set()
     for s, d in units:
         sfile = d / "summary.json"
         if not sfile.exists():
@@ -207,6 +216,12 @@ def validate(sub: pathlib.Path) -> Problems:
         code = summ.get("code") or {}
         if diff_sha and code.get("changes_diff_sha256") not in (None, diff_sha):
             pr.add(s, "code.changes_diff_sha256 does not match code/changes.diff")
+        if frozen_sha and code.get("frozen_sha256_file") not in (None, frozen_sha):
+            pr.add(s, "code.frozen_sha256_file does not match code/frozen.sha256. The listing is "
+                      "generated once at checkpoint A and never again, so either it was "
+                      "regenerated or this summary was copied from another run")
+        if code.get("frozen_sha256_file"):
+            frozen_claimed.add(code["frozen_sha256_file"])
         if (code.get("changes_justified") is False):
             pr.add(s, "changes_justified is false; justify each hunk in REPORT.md")
         run = summ.get("run") or {}
@@ -308,6 +323,9 @@ def validate(sub: pathlib.Path) -> Problems:
     if len(seeds) > 1 and {"B_retrain_released", "C_retrain_variants"} & set(present):
         pr.add(sub.name, f"more than one seed across stages ({sorted(seeds)}); checkpoints B "
                          "and C must share a seed")
+    if len(frozen_claimed) > 1:
+        pr.add(sub.name, "the stages disagree about code/frozen.sha256; the evaluation path moved "
+                         "between checkpoints, which is the one thing that file exists to detect")
     if len(rules) > 1:
         pr.add(sub.name, f"inconsistent checkpoint_rule between training stages ({sorted(rules)}); "
                          "B and C must select their checkpoint the same way")

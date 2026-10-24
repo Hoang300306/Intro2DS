@@ -76,8 +76,13 @@ The repository also ships agent command files under `.claude/`. If you use them,
 
 # Checkpoint A — environment, reproduction, smoke train
 
-**One pull request containing all three parts.** Total cost: under one GPU-hour. Nothing expensive
-happens until this is merged.
+**One pull request containing all three parts.** Nothing expensive happens until this is merged.
+
+The cost here is A2, and it scales with how many benchmark sets your model reports — a model with
+six of them has cost 2.7 GPU-hours, so treat **a few GPU-hours** as normal and report what you
+actually used. What checkpoint A must not do is approach the cost of a retrain. If your scoring
+looks like it will run past roughly five GPU-hours, say so in the pull request before you spend it,
+rather than after.
 
 ## A1 — environment  → `A1_env/`
 

@@ -1,0 +1,608 @@
+==== ~/causalbind_logs/A3_smoke.log ====
+Sat Oct 24 08:10:51 UTC 2026
+fused_multi_tensor is not installed corrected
+fused_rounding is not installed corrected
+fused_layer_norm is not installed corrected
+fused_rms_norm is not installed corrected
+fused_softmax is not installed corrected
+2026-10-24 08:10:59 | INFO | unicore.distributed.utils | distributed init (rank 0): env://
+[W1024 08:10:59.872497740 Utils.hpp:137] Warning: Environment variable NCCL_ASYNC_ERROR_HANDLING is deprecated; use TORCH_NCCL_ASYNC_ERROR_HANDLING instead (function operator())
+2026-10-24 08:10:59 | INFO | unicore.distributed.utils | initialized host f076df7d13fa as rank 0
+2026-10-24 08:11:00 | INFO | unicore_cli.train | Namespace(no_progress_bar=False, log_interval=100, log_format='simple', tensorboard_logdir='/root/causalbind_save/A3_smoke/causalbind_sp_seed1/tsb_dir', wandb_project='', wandb_name='', seed=1, cpu=False, fp16=True, bf16=False, bf16_sr=False, allreduce_fp32_grad=False, fp16_no_flatten_grads=False, fp16_init_scale=4, fp16_scale_window=256, fp16_scale_tolerance=0.0, min_loss_scale=0.0001, threshold_loss_scale=None, user_dir='/root/CausalBind/unimol', empty_cache_freq=0, all_gather_list_size=2048000, suppress_crashes=False, profile=False, ema_decay=-1.0, validate_with_ema=False, loss='three_hybrid_loss', optimizer='adam', lr_scheduler='polynomial_decay', task='train_task', num_workers=0, skip_invalid_size_inputs_valid_test=False, batch_size=24, required_batch_size_multiple=1, data_buffer_size=10, train_subset='train', valid_subset='valid', validate_interval=1, validate_interval_updates=0, validate_after_updates=0, fixed_validation_seed=None, disable_validation=False, batch_size_valid=32, max_valid_steps=None, curriculum=0, distributed_world_size=1, distributed_rank=0, distributed_backend='nccl', distributed_init_method='env://', distributed_port=-1, device_id=0, distributed_no_spawn=True, ddp_backend='c10d', bucket_cap_mb=25, fix_batches_to_gpus=False, find_unused_parameters=True, fast_stat_sync=False, broadcast_buffers=False, nprocs_per_node=1, arch='causal_three_hybrid_v2', max_epoch=1, max_update=0, stop_time_hours=0, no_weight_decay_names='', clip_norm=1.0, per_sample_clip_norm=0, update_freq=[1], lr=[0.0001], stop_min_lr=-1, save_dir='/root/causalbind_save/A3_smoke/causalbind_sp_seed1/savedir', tmp_save_dir='/root/causalbind_save/A3_smoke/causalbind_sp_seed1/tmp_save_dir', restore_file='checkpoint_last.pt', finetune_from_model=None, load_from_ema=False, reset_dataloader=False, reset_lr_scheduler=False, reset_meters=False, reset_optimizer=False, optimizer_overrides='{}', save_interval=1, save_interval_updates=0, keep_interval_updates=-1, keep_last_epochs=50, keep_best_checkpoints=8, no_save=False, no_epoch_checkpoints=False, no_last_checkpoints=False, no_save_optimizer_state=False, best_checkpoint_metric='valid_bedroc', maximize_best_checkpoint_metric=True, patience=-1, checkpoint_suffix='', recycling=1, aperture_eta=1.2, curv_init=1.0, num_concepts=128, concept_dim=1024, concept_layers=4, sparsity_weight=0.0001, mask_type='tanh_plus_1', sparsity_threshold=0.5, mask_rank=8, data='/root/causalbind_smoke_data', finetune_mol_model='/root/CausalBind/pretrain/mol_pre_no_h_220816.pt', finetune_pocket_model='/root/CausalBind/pretrain/pocket_pre_220816.pt', restore_model=None, dist_threshold=6.0, max_pocket_atoms=256, test_model=False, reg=False, few_shot=False, sup_num=16, valid_set='CASF', max_lignum=16, test_max_lignum=512, split_method='random', results_path=None, assay_idx=0, contras_weight=0.5, rank_weight=0.5, protein_similarity_thres=1.0, neg_margin=2.0, demo_lig_file='', demo_prot_file='', demo_split_file='', case_train_ligfile='', case_test_ligfile='', active_learning_resfile='', adam_betas='(0.9, 0.999)', adam_eps=1e-08, weight_decay=0.0, force_anneal=None, warmup_updates=0, warmup_ratio=0.06, end_learning_rate=0.0, power=1.0, total_num_update=1000000, learn_curv=True, no_seed_provided=False, mol=Namespace(encoder_layers=15, encoder_embed_dim=512, encoder_ffn_embed_dim=2048, encoder_attention_heads=64, dropout=0.1, emb_dropout=0.1, attention_dropout=0.1, activation_dropout=0.0, pooler_dropout=0.0, max_seq_len=512, activation_fn='gelu', pooler_activation_fn='tanh', post_ln=False, masked_token_loss=-1.0, masked_coord_loss=-1.0, masked_dist_loss=-1.0, x_norm_loss=-1.0, delta_pair_repr_norm_loss=-1.0), pocket=Namespace(encoder_layers=15, encoder_embed_dim=512, encoder_ffn_embed_dim=2048, encoder_attention_heads=64, dropout=0.1, emb_dropout=0.1, attention_dropout=0.1, activation_dropout=0.0, pooler_dropout=0.0, max_seq_len=512, activation_fn='gelu', pooler_activation_fn='tanh', post_ln=False, masked_token_loss=-1.0, masked_coord_loss=-1.0, masked_dist_loss=-1.0, x_norm_loss=-1.0, delta_pair_repr_norm_loss=-1.0), hbce_bounds=[5.0, 7.0, 9.0], chl_r0=0.5, chl_dr=0.5, chl_eta0=0.7, chl_deta=0.2, lambda_rad=0.5, lambda_ang=0.5, gamma_chl=0.1, encoder_layers=15, encoder_embed_dim=512, encoder_ffn_embed_dim=2048, encoder_attention_heads=64, dropout=0.1, emb_dropout=0.1, attention_dropout=0.1, activation_dropout=0.0, pooler_dropout=0.0, max_seq_len=512, activation_fn='gelu', pooler_activation_fn='tanh', post_ln=False, masked_token_loss=-1.0, masked_coord_loss=-1.0, masked_dist_loss=-1.0, x_norm_loss=-1.0, delta_pair_repr_norm_loss=-1.0)
+2026-10-24 08:11:00 | INFO | unimol.tasks.train_task | ligand dictionary: 30 types
+2026-10-24 08:11:00 | INFO | unimol.tasks.train_task | pocket dictionary: 9 types
+23567 0.1
+23567 0.1
+load pretrain model weight from... /root/CausalBind/pretrain/mol_pre_no_h_220816.pt
+load pretrain model weight from... /root/CausalBind/pretrain/pocket_pre_220816.pt
+2026-10-24 08:11:06 | INFO | unicore_cli.train | CausalThreeHybridV2(
+  (mol_model): UniMolModel(
+    (embed_tokens): Embedding(31, 512, padding_idx=0)
+    (encoder): TransformerEncoderWithPair(
+      (emb_layer_norm): LayerNorm(torch.Size([512]), eps=1e-05, elementwise_affine=True)
+      (final_layer_norm): LayerNorm(torch.Size([512]), eps=1e-05, elementwise_affine=True)
+      (layers): ModuleList(
+        (0-14): 15 x TransformerEncoderLayer(
+          (self_attn): SelfMultiheadAttention(
+            (in_proj): Linear(in_features=512, out_features=1536, bias=True)
+            (out_proj): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (self_attn_layer_norm): LayerNorm(torch.Size([512]), eps=1e-05, elementwise_affine=True)
+          (fc1): Linear(in_features=512, out_features=2048, bias=True)
+          (fc2): Linear(in_features=2048, out_features=512, bias=True)
+          (final_layer_norm): LayerNorm(torch.Size([512]), eps=1e-05, elementwise_affine=True)
+        )
+      )
+    )
+    (gbf_proj): NonLinearHead(
+      (linear1): Linear(in_features=128, out_features=128, bias=True)
+      (linear2): Linear(in_features=128, out_features=64, bias=True)
+    )
+    (gbf): GaussianLayer(
+      (means): Embedding(1, 128)
+      (stds): Embedding(1, 128)
+      (mul): Embedding(961, 1)
+      (bias): Embedding(961, 1)
+    )
+    (classification_heads): ModuleDict()
+  )
+  (pocket_model): UniMolModel(
+    (embed_tokens): Embedding(10, 512, padding_idx=0)
+    (encoder): TransformerEncoderWithPair(
+      (emb_layer_norm): LayerNorm(torch.Size([512]), eps=1e-05, elementwise_affine=True)
+      (final_layer_norm): LayerNorm(torch.Size([512]), eps=1e-05, elementwise_affine=True)
+      (layers): ModuleList(
+        (0-14): 15 x TransformerEncoderLayer(
+          (self_attn): SelfMultiheadAttention(
+            (in_proj): Linear(in_features=512, out_features=1536, bias=True)
+            (out_proj): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (self_attn_layer_norm): LayerNorm(torch.Size([512]), eps=1e-05, elementwise_affine=True)
+          (fc1): Linear(in_features=512, out_features=2048, bias=True)
+          (fc2): Linear(in_features=2048, out_features=512, bias=True)
+          (final_layer_norm): LayerNorm(torch.Size([512]), eps=1e-05, elementwise_affine=True)
+        )
+      )
+    )
+    (gbf_proj): NonLinearHead(
+      (linear1): Linear(in_features=128, out_features=128, bias=True)
+      (linear2): Linear(in_features=128, out_features=64, bias=True)
+    )
+    (gbf): GaussianLayer(
+      (means): Embedding(1, 128)
+      (stds): Embedding(1, 128)
+      (mul): Embedding(100, 1)
+      (bias): Embedding(100, 1)
+    )
+    (classification_heads): ModuleDict()
+  )
+  (protein_model): EsmForMaskedLM(
+    (esm): EsmModel(
+      (embeddings): EsmEmbeddings(
+        (word_embeddings): Embedding(33, 480, padding_idx=1)
+        (dropout): Dropout(p=0.0, inplace=False)
+        (position_embeddings): Embedding(1026, 480, padding_idx=1)
+      )
+      (encoder): EsmEncoder(
+        (layer): ModuleList(
+          (0-11): 12 x EsmLayer(
+            (attention): EsmAttention(
+              (self): EsmSelfAttention(
+                (query): Linear(in_features=480, out_features=480, bias=True)
+                (key): Linear(in_features=480, out_features=480, bias=True)
+                (value): Linear(in_features=480, out_features=480, bias=True)
+                (dropout): Dropout(p=0.0, inplace=False)
+                (rotary_embeddings): RotaryEmbedding()
+              )
+              (output): EsmSelfOutput(
+                (dense): Linear(in_features=480, out_features=480, bias=True)
+                (dropout): Dropout(p=0.0, inplace=False)
+              )
+              (LayerNorm): LayerNorm((480,), eps=1e-05, elementwise_affine=True)
+            )
+            (intermediate): EsmIntermediate(
+              (dense): Linear(in_features=480, out_features=1920, bias=True)
+            )
+            (output): EsmOutput(
+              (dense): Linear(in_features=1920, out_features=480, bias=True)
+              (dropout): Dropout(p=0.0, inplace=False)
+            )
+            (LayerNorm): LayerNorm((480,), eps=1e-05, elementwise_affine=True)
+          )
+        )
+        (emb_layer_norm_after): LayerNorm((480,), eps=1e-05, elementwise_affine=True)
+      )
+      (contact_head): EsmContactPredictionHead(
+        (regression): Linear(in_features=240, out_features=1, bias=True)
+        (activation): Sigmoid()
+      )
+    )
+    (lm_head): EsmLMHead(
+      (dense): Linear(in_features=480, out_features=480, bias=True)
+      (layer_norm): LayerNorm((480,), eps=1e-05, elementwise_affine=True)
+      (decoder): Linear(in_features=480, out_features=33, bias=False)
+    )
+  )
+  (mol_concept_extractor): ConceptExtractor(
+    (input_proj): Linear(in_features=512, out_features=1024, bias=True)
+    (layers): ModuleList(
+      (0-3): 4 x PerceiverBlock(
+        (norm1): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+        (norm_kv): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+        (cross_attn): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=1024, out_features=1024, bias=True)
+        )
+        (ffn): Sequential(
+          (0): Linear(in_features=1024, out_features=4096, bias=True)
+          (1): GELU(approximate='none')
+          (2): Dropout(p=0.1, inplace=False)
+          (3): Linear(in_features=4096, out_features=1024, bias=True)
+          (4): Dropout(p=0.1, inplace=False)
+        )
+      )
+    )
+    (norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+  )
+  (pocket_concept_extractor): ConceptExtractor(
+    (input_proj): Linear(in_features=512, out_features=1024, bias=True)
+    (layers): ModuleList(
+      (0-3): 4 x PerceiverBlock(
+        (norm1): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+        (norm_kv): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+        (cross_attn): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=1024, out_features=1024, bias=True)
+        )
+        (ffn): Sequential(
+          (0): Linear(in_features=1024, out_features=4096, bias=True)
+          (1): GELU(approximate='none')
+          (2): Dropout(p=0.1, inplace=False)
+          (3): Linear(in_features=4096, out_features=1024, bias=True)
+          (4): Dropout(p=0.1, inplace=False)
+        )
+      )
+    )
+    (norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+  )
+  (protein_concept_extractor): ConceptExtractor(
+    (input_proj): Linear(in_features=480, out_features=1024, bias=True)
+    (layers): ModuleList(
+      (0-3): 4 x PerceiverBlock(
+        (norm1): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+        (norm_kv): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+        (cross_attn): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=1024, out_features=1024, bias=True)
+        )
+        (ffn): Sequential(
+          (0): Linear(in_features=1024, out_features=4096, bias=True)
+          (1): GELU(approximate='none')
+          (2): Dropout(p=0.1, inplace=False)
+          (3): Linear(in_features=4096, out_features=1024, bias=True)
+          (4): Dropout(p=0.1, inplace=False)
+        )
+      )
+    )
+    (norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+  )
+  (protein_adapter): Linear(in_features=480, out_features=480, bias=True)
+  (mol_pooler): ConceptPooler()
+  (pocket_pooler): ConceptPooler()
+  (protein_pooler): ConceptPooler()
+  (mol_sparse_mask): SparseMask()
+  (pocket_sparse_mask): SparseMask()
+  (protein_sparse_mask): SparseMask()
+  (mol_project): ProjectionHead(
+    (proj): Sequential(
+      (0): Linear(in_features=1024, out_features=1024, bias=True)
+      (1): GELU(approximate='none')
+      (2): Linear(in_features=1024, out_features=128, bias=True)
+    )
+  )
+  (pocket_project): ProjectionHead(
+    (proj): Sequential(
+      (0): Linear(in_features=1024, out_features=1024, bias=True)
+      (1): GELU(approximate='none')
+      (2): Linear(in_features=1024, out_features=128, bias=True)
+    )
+  )
+  (protein_project): ProjectionHead(
+    (proj): Sequential(
+      (0): Linear(in_features=1024, out_features=1024, bias=True)
+      (1): GELU(approximate='none')
+      (2): Linear(in_features=1024, out_features=128, bias=True)
+    )
+  )
+)
+2026-10-24 08:11:06 | INFO | unicore_cli.train | task: pocketscreen
+2026-10-24 08:11:06 | INFO | unicore_cli.train | model: CausalThreeHybridV2
+2026-10-24 08:11:06 | INFO | unicore_cli.train | loss: ThreeHybridLoss
+2026-10-24 08:11:06 | INFO | unicore_cli.train | num. model params: 285,586,881 (num. trained: 251,593,007)
+2026-10-24 08:11:07 | INFO | unicore.trainer | detected shared parameter: protein_model.esm.embeddings.word_embeddings.weight <- protein_model.lm_head.decoder.weight
+2026-10-24 08:11:07 | INFO | unicore.utils | ***********************CUDA enviroments for all 1 workers***********************
+2026-10-24 08:11:07 | INFO | unicore.utils | rank   0: capabilities =  8.0  ; total memory = 79.151 GB ; name = NVIDIA A100-SXM4-80GB                   
+2026-10-24 08:11:07 | INFO | unicore.utils | ***********************CUDA enviroments for all 1 workers***********************
+2026-10-24 08:11:07 | INFO | unicore_cli.train | training on 1 devices (GPUs)
+2026-10-24 08:11:07 | INFO | unicore_cli.train | batch size per device = 24
+2026-10-24 08:11:07 | INFO | unicore.trainer | Preparing to load checkpoint /root/causalbind_save/A3_smoke/causalbind_sp_seed1/savedir/checkpoint_last.pt
+2026-10-24 08:11:07 | INFO | unicore.trainer | loading train data for epoch 1
+number of deleted ligands 461
+number of assays before processing : 400
+number of assays after remove ligands in FEP: 400
+number of assays after remove assays in FEP: 400
+['P9WGR0', 'P29274', 'P00519', 'P12821', 'P04058', 'P56658', 'P78536', 'P07700', 'P07550', 'P31749', 'P31751', 'P15121', 'P00811', 'P10275', 'P27338', 'P56817', 'P15056', 'P00918', 'P42574', 'P24941', 'P21964', 'P11712', 'P08684', 'P11362', 'P61073', 'P0A6K3', 'P28845', 'P27487', 'P35462', 'P00374', 'P00533', 'P03372', 'Q92731', 'P00742', 'P08709', 'P15090', 'Q05397', 'P11362', 'P62942', 'P49354', 'P14324', 'P04150', 'P04062', 'P19491', 'P22756', 'Q92769', 'Q9BY41', 'P12497', 'P03367', 'P04585', 'P04035', 'P07900', 'P35557', 'P08069', 'P20701', 'O60674', 'P52732', 'P10721', 'Q9PPP5', 'P05771', 'P06239', 'P09960', 'P49137', 'P08235', 'P08581', 'P28482', 'P53779', 'Q16539', 'P45452', 'Q02750', 'P29476', 'P03474', 'P14555', 'P09874', 'O76074', 'P05979', 'Q05769', 'P53350', 'P00491', 'Q07869', 'Q03181', 'P37231', 'P06401', 'P18031', 'P22102', 'P00489', 'Q02127', 'P00797', 'Q13464', 'P19793', 'P23526', 'P00523', 'P36897', 'P10828', 'P00734', 'P00760', 'Q15661', 'P0A884', 'P00749', 'P35968', 'P30291', 'P98170', 'P37231', 'P11473', 'P00352', 'P03372', 'P39748', 'P04062', 'P04637', 'P14618', 'P03372', 'P42345', 'P41145', 'P07550', 'O75874', 'Q92830', 'P28482', 'P28845', 'P14061', 'P29274', 'P12821', 'Q9BYF1', 'P04058', 'P78536', 'P07550', 'P31749', 'P80276', 'P10275', 'O14965', 'Q6DE08', 'P10415', 'P15056', 'P07711', 'P24941', 'P05979', 'Q05769', 'P43235', 'P11509', 'P00374', 'P00533', 'P54760', 'P04626', 'Q92731', 'P11362', 'P62942', 'P00742', 'P04062', 'P04150', 'P49841', 'Q92769', 'Q9BY41', 'P03366', 'P03366', 'P04035', 'P07900', 'P08069', 'P9WGR1', 'Q08881', 'P52333', 'P45983', 'P45984', 'P53779', 'P52732', 'P06239', 'Q00987', 'P49137', 'P08253', 'P27907', 'Q16539', 'P09874', 'Q07343', 'O76074', 'O15530', 'P48736', 'P11309', 'Q9P1W9', 'P55859', 'Q07869', 'P19793', 'P06401', 'Q04759', 'P06737', 'P06737', 'Q16769', 'Q13464', 'P19793', 'P0C6X7', 'Q8IXJ6', 'P12931', 'P00734', 'Q02763', 'P04183', 'P19971', 'P00750', 'P04818', 'P00749', 'P17948', 'P35968']
+number of assay after remove test uniport: 278
+totally 278 datas (blend ChEMBL and BindingDB) for train
+2026-10-24 08:21:41 | INFO | unimol.data.resampling_dataset | ResamplingDataset.set_epoch: 1
+2026-10-24 08:21:41 | INFO | unicore.tasks.unicore_task | get EpochBatchIterator for epoch 1
+2026-10-24 08:21:41 | INFO | unimol.data.resampling_dataset | ResamplingDataset.set_epoch: 1
+2026-10-24 08:21:41 | INFO | unicore.trainer | No existing checkpoint found /root/causalbind_save/A3_smoke/causalbind_sp_seed1/savedir/checkpoint_last.pt
+2026-10-24 08:21:41 | INFO | unimol.data.resampling_dataset | ResamplingDataset.set_epoch: 1
+2026-10-24 08:21:41 | INFO | unicore.trainer | begin training epoch 1
+2026-10-24 08:21:41 | INFO | unicore_cli.train | Start iterating over samples
+2026-10-24 08:22:01 | INFO | unicore_cli.train | begin validation on "valid" subset
+2026-10-24 08:22:01 | INFO | unicore.tasks.unicore_task | get EpochBatchIterator for epoch 1
+2026-10-24 08:22:05 | INFO | valid | epoch 001 | valid on 'valid' subset | loss 0 | valid_acc 0.034 | valid_neg_loss 0 | valid_auc 0.5 | valid_bedroc 0.034 | valid_top3_acc 0.094 | bsz 0 | num_updates 20
+2026-10-24 08:22:05 | INFO | unicore.checkpoint_utils | Preparing to save checkpoint for epoch 1 @ 20 updates
+2026-10-24 08:22:05 | INFO | unicore.trainer | Saving checkpoint to /root/causalbind_save/A3_smoke/causalbind_sp_seed1/tmp_save_dir/checkpoint1.pt
+2026-10-24 08:22:10 | INFO | unicore.trainer | Finished saving checkpoint to /root/causalbind_save/A3_smoke/causalbind_sp_seed1/tmp_save_dir/checkpoint1.pt
+2026-10-24 08:22:10 | INFO | unicore.checkpoint_utils | Saved checkpoint /root/causalbind_save/A3_smoke/causalbind_sp_seed1/tmp_save_dir/checkpoint1.pt (epoch 1 @ 20 updates, score 0.034) (writing took 4.8808402344584465 seconds)
+2026-10-24 08:22:10 | INFO | unicore_cli.train | end of epoch 1 (average epoch stats below)
+2026-10-24 08:22:10 | INFO | unicore.checkpoint_utils | copy /root/causalbind_save/A3_smoke/causalbind_sp_seed1/tmp_save_dir/checkpoint1.pt to /root/causalbind_save/A3_smoke/causalbind_sp_seed1/savedir/checkpoint1.pt
+2026-10-24 08:22:10 | INFO | train | epoch 001 | loss 2.238 | loss_cone 0.024 | R_ang 0.058 | R_het 0.005 | loss_hcc_poc 1.105 | loss_poc_pocket 0.895 | loss_poc_rank 0.209 | loss_hcc_prot 1.105 | loss_prot_pocket 0.896 | loss_prot_rank 0.209 | sparsity_loss 0.01874 | loss_contrastive 2.21883 | sparsity_ratio 0.0084 | ups 0.74 | bsz 0 | num_updates 20 | lr 5e-06 | gnorm 4.906 | clip 95 | loss_scale 4 | train_wall 20.12 | gb_free 44 | wall 663
+2026-10-24 08:22:10 | INFO | unicore.tasks.unicore_task | get EpochBatchIterator for epoch 2
+2026-10-24 08:22:10 | INFO | unimol.data.resampling_dataset | ResamplingDataset.set_epoch: 2
+2026-10-24 08:22:11 | INFO | unicore.checkpoint_utils | copy /root/causalbind_save/A3_smoke/causalbind_sp_seed1/tmp_save_dir/checkpoint1.pt to /root/causalbind_save/A3_smoke/causalbind_sp_seed1/savedir/checkpoint_best.pt
+2026-10-24 08:22:13 | INFO | unicore.checkpoint_utils | copy /root/causalbind_save/A3_smoke/causalbind_sp_seed1/tmp_save_dir/checkpoint1.pt to /root/causalbind_save/A3_smoke/causalbind_sp_seed1/savedir/checkpoint.best_valid_bedroc_0.03.pt
+2026-10-24 08:22:14 | INFO | unicore.checkpoint_utils | copy /root/causalbind_save/A3_smoke/causalbind_sp_seed1/tmp_save_dir/checkpoint1.pt to /root/causalbind_save/A3_smoke/causalbind_sp_seed1/savedir/checkpoint_last.pt
+2026-10-24 08:22:15 | INFO | unicore.checkpoint_utils | removing temp file /root/causalbind_save/A3_smoke/causalbind_sp_seed1/tmp_save_dir/checkpoint1.pt ...
+2026-10-24 08:22:16 | INFO | unicore.checkpoint_utils | finished async ckp saving.
+2026-10-24 08:22:16 | INFO | unicore_cli.train | done training in 28.9 seconds
+exit 0
+Sat Oct 24 08:22:18 UTC 2026
+==== ~/causalbind_logs/A3_reload_DEKOIS.log ====
+Sat Oct 24 08:25:23 UTC 2026
+fused_multi_tensor is not installed corrected
+fused_rounding is not installed corrected
+fused_layer_norm is not installed corrected
+fused_rms_norm is not installed corrected
+fused_softmax is not installed corrected
+23567 0.1
+23567 0.1
+[DEKOIS] target=vegfr2, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:15,  1.21it/s]Ligand embedding:  10%|█         | 2/20 [00:01<00:08,  2.06it/s]Ligand embedding:  20%|██        | 4/20 [00:01<00:04,  3.74it/s]Ligand embedding:  45%|████▌     | 9/20 [00:01<00:01, 10.23it/s]Ligand embedding:  60%|██████    | 12/20 [00:01<00:00, 10.35it/s]Ligand embedding:  85%|████████▌ | 17/20 [00:01<00:00, 16.36it/s]Ligand embedding: 100%|██████████| 20/20 [00:02<00:00, 10.52it/s]Ligand embedding: 100%|██████████| 20/20 [00:02<00:00,  7.77it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.29it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.29it/s]
+[DEKOIS] vegfr2 AUC=0.6157, BEDROC=0.1646, EF={'0.005': 8.857142857142858, '0.01': 7.153846153846153, '0.02': 3.72, '0.05': 2.0}
+[DEKOIS] target=vegfr1, num_mols=1239
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.11it/s]Ligand embedding:  15%|█▌        | 3/20 [00:00<00:03,  5.01it/s]Ligand embedding:  40%|████      | 8/20 [00:00<00:00, 13.96it/s]Ligand embedding:  65%|██████▌   | 13/20 [00:00<00:00, 21.75it/s]Ligand embedding:  85%|████████▌ | 17/20 [00:01<00:00, 15.56it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 13.36it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.11it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.11it/s]
+[DEKOIS] vegfr1 AUC=0.6675, BEDROC=0.3374, EF={'0.005': 17.7, '0.01': 11.913461538461538, '0.02': 9.912, '0.05': 4.496370967741935}
+[DEKOIS] target=upa, num_mols=1239
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.07it/s]Ligand embedding:  15%|█▌        | 3/20 [00:00<00:03,  4.29it/s]Ligand embedding:  40%|████      | 8/20 [00:00<00:00, 12.57it/s]Ligand embedding:  65%|██████▌   | 13/20 [00:00<00:00, 19.80it/s]Ligand embedding:  85%|████████▌ | 17/20 [00:01<00:00, 16.98it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 13.18it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.21it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.21it/s]
+[DEKOIS] upa AUC=0.4672, BEDROC=0.1445, EF={'0.005': 4.425, '0.01': 4.765384615384615, '0.02': 3.717, '0.05': 2.497983870967742}
+[DEKOIS] target=ts, num_mols=1237
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:08,  2.17it/s]Ligand embedding:  15%|█▌        | 3/20 [00:00<00:03,  5.45it/s]Ligand embedding:  40%|████      | 8/20 [00:00<00:00, 15.10it/s]Ligand embedding:  65%|██████▌   | 13/20 [00:00<00:00, 22.74it/s]Ligand embedding:  85%|████████▌ | 17/20 [00:01<00:00, 18.32it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 14.49it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.38it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.38it/s]
+[DEKOIS] ts AUC=0.5032, BEDROC=0.0060, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 0.0, '0.05': 0.9975806451612904}
+[DEKOIS] target=tpa, num_mols=1238
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.04it/s]Ligand embedding:  15%|█▌        | 3/20 [00:00<00:04,  4.22it/s]Ligand embedding:  40%|████      | 8/20 [00:00<00:00, 12.15it/s]Ligand embedding:  65%|██████▌   | 13/20 [00:01<00:00, 13.88it/s]Ligand embedding:  75%|███████▌  | 15/20 [00:01<00:00, 14.15it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 20.67it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 12.47it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.27it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.26it/s]
+[DEKOIS] tpa AUC=0.4228, BEDROC=0.0220, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 0.0, '0.05': 1.9967741935483871}
+[DEKOIS] target=tp, num_mols=1236
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.11it/s]Ligand embedding:  10%|█         | 2/20 [00:00<00:04,  3.61it/s]Ligand embedding:  35%|███▌      | 7/20 [00:00<00:00, 14.37it/s]Ligand embedding:  60%|██████    | 12/20 [00:00<00:00, 22.79it/s]Ligand embedding:  80%|████████  | 16/20 [00:01<00:00, 15.58it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 13.94it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.34it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.34it/s]
+[DEKOIS] tp AUC=0.5508, BEDROC=0.0001, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 0.0, '0.05': 0.0}
+[DEKOIS] target=tk, num_mols=1238
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:08,  2.17it/s]Ligand embedding:  10%|█         | 2/20 [00:00<00:06,  3.00it/s]Ligand embedding:  35%|███▌      | 7/20 [00:00<00:01, 12.37it/s]Ligand embedding:  60%|██████    | 12/20 [00:00<00:00, 20.44it/s]Ligand embedding:  80%|████████  | 16/20 [00:01<00:00, 15.96it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 13.43it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.27it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.27it/s]
+[DEKOIS] tk AUC=0.3235, BEDROC=0.0000, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 0.0, '0.05': 0.0}
+[DEKOIS] target=tie2, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.10it/s]Ligand embedding:  10%|█         | 2/20 [00:00<00:06,  2.73it/s]Ligand embedding:  35%|███▌      | 7/20 [00:00<00:01, 11.53it/s]Ligand embedding:  60%|██████    | 12/20 [00:00<00:00, 19.46it/s]Ligand embedding:  80%|████████  | 16/20 [00:01<00:00, 15.97it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 12.79it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.22it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.22it/s]
+[DEKOIS] tie2 AUC=0.7163, BEDROC=0.2322, EF={'0.005': 8.857142857142858, '0.01': 7.153846153846153, '0.02': 6.2, '0.05': 5.0}
+[DEKOIS] target=thrombin, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.11it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 12.47it/s]Ligand embedding:  45%|████▌     | 9/20 [00:00<00:00, 16.06it/s]Ligand embedding:  65%|██████▌   | 13/20 [00:00<00:00, 21.82it/s]Ligand embedding:  90%|█████████ | 18/20 [00:00<00:00, 28.63it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 17.42it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.19it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.19it/s]
+[DEKOIS] thrombin AUC=0.6651, BEDROC=0.1193, EF={'0.005': 4.428571428571429, '0.01': 4.769230769230769, '0.02': 2.48, '0.05': 3.0}
+[DEKOIS] target=src, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:10,  1.89it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 11.84it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 20.12it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 26.96it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.33it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.28it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.28it/s]
+[DEKOIS] src AUC=0.6184, BEDROC=0.0605, EF={'0.005': 0.0, '0.01': 2.3846153846153846, '0.02': 2.48, '0.05': 2.0}
+[DEKOIS] target=sirt2, num_mols=1238
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:10,  1.78it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 11.35it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 19.27it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 26.21it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 17.82it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.14it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.14it/s]
+[DEKOIS] sirt2 AUC=0.4464, BEDROC=0.0379, EF={'0.005': 0.0, '0.01': 2.3807692307692307, '0.02': 1.238, '0.05': 0.9983870967741936}
+[DEKOIS] target=sars-hcov, num_mols=1207
+Ligand embedding:   0%|          | 0/19 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/19 [00:00<00:08,  2.01it/s]Ligand embedding:  32%|███▏      | 6/19 [00:00<00:01, 12.73it/s]Ligand embedding:  58%|█████▊    | 11/19 [00:00<00:00, 21.15it/s]Ligand embedding:  84%|████████▍ | 16/19 [00:00<00:00, 28.28it/s]Ligand embedding: 100%|██████████| 19/19 [00:01<00:00, 18.55it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00, 48.82it/s]
+[DEKOIS] sars-hcov AUC=0.5618, BEDROC=0.1957, EF={'0.005': 8.842490842490841, '0.01': 7.1420118343195265, '0.02': 4.951794871794872, '0.05': 4.0588482555695675}
+[DEKOIS] target=rxr, num_mols=1239
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  1.92it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 11.83it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 20.01it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 26.46it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 17.91it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.12it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.11it/s]
+[DEKOIS] rxr AUC=0.1045, BEDROC=0.0000, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 0.0, '0.05': 0.0}
+[DEKOIS] target=rock-1, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.09it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01, 10.40it/s]Ligand embedding:  50%|█████     | 10/20 [00:00<00:00, 19.70it/s]Ligand embedding:  75%|███████▌  | 15/20 [00:00<00:00, 26.24it/s]Ligand embedding: 100%|██████████| 20/20 [00:00<00:00, 32.33it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.87it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.16it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.16it/s]
+[DEKOIS] rock-1 AUC=0.6996, BEDROC=0.0701, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 2.48, '0.05': 4.0}
+[DEKOIS] target=qpct, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:08,  2.11it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01, 10.83it/s]Ligand embedding:  50%|█████     | 10/20 [00:00<00:00, 19.76it/s]Ligand embedding:  75%|███████▌  | 15/20 [00:00<00:00, 26.30it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.37it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.22it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.22it/s]
+[DEKOIS] qpct AUC=0.8012, BEDROC=0.1882, EF={'0.005': 4.428571428571429, '0.01': 4.769230769230769, '0.02': 4.96, '0.05': 4.5}
+[DEKOIS] target=pygl-out, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:12,  1.52it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01,  8.29it/s]Ligand embedding:  50%|█████     | 10/20 [00:00<00:00, 16.00it/s]Ligand embedding:  75%|███████▌  | 15/20 [00:00<00:00, 23.21it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 29.41it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 15.61it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.11it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.11it/s]
+[DEKOIS] pygl-out AUC=0.3355, BEDROC=0.0118, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 0.0, '0.05': 0.5}
+[DEKOIS] target=pygl-in, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:11,  1.61it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 10.13it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 18.09it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 24.77it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 15.73it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.22it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.22it/s]
+[DEKOIS] pygl-in AUC=0.4620, BEDROC=0.0001, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 0.0, '0.05': 0.0}
+[DEKOIS] target=prkcq, num_mols=1239
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:12,  1.55it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 10.02it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 17.97it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 24.77it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 16.03it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.30it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.30it/s]
+[DEKOIS] prkcq AUC=0.6173, BEDROC=0.1691, EF={'0.005': 4.425, '0.01': 4.765384615384615, '0.02': 4.956, '0.05': 3.9967741935483874}
+[DEKOIS] target=pr, num_mols=1239
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.02it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 12.36it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 20.64it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 27.24it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.00it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.22it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.22it/s]
+[DEKOIS] pr AUC=0.4610, BEDROC=0.0103, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 0.0, '0.05': 0.4995967741935484}
+[DEKOIS] target=pparg, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:10,  1.83it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01,  9.66it/s]Ligand embedding:  50%|█████     | 10/20 [00:00<00:00, 18.57it/s]Ligand embedding:  75%|███████▌  | 15/20 [00:00<00:00, 25.41it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 17.01it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.25it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.24it/s]
+[DEKOIS] pparg AUC=0.2917, BEDROC=0.0000, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 0.0, '0.05': 0.0}
+[DEKOIS] target=ppara, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:12,  1.56it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01,  8.55it/s]Ligand embedding:  50%|█████     | 10/20 [00:00<00:00, 16.95it/s]Ligand embedding:  75%|███████▌  | 15/20 [00:00<00:00, 24.32it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 16.00it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.35it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.35it/s]
+[DEKOIS] ppara AUC=0.1889, BEDROC=0.0000, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 0.0, '0.05': 0.0}
+[DEKOIS] target=pnp, num_mols=1236
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  1.92it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 11.99it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 20.68it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 27.81it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.06it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.17it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.17it/s]
+[DEKOIS] pnp AUC=0.5767, BEDROC=0.0000, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 0.0, '0.05': 0.0}
+[DEKOIS] target=pim-2, num_mols=1237
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:08,  2.17it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 12.66it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 20.57it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 26.49it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 17.99it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.26it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.26it/s]
+[DEKOIS] pim-2 AUC=0.4477, BEDROC=0.0006, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 0.0, '0.05': 0.0}
+[DEKOIS] target=pim-1, num_mols=1239
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.03it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01, 10.45it/s]Ligand embedding:  50%|█████     | 10/20 [00:00<00:00, 19.15it/s]Ligand embedding:  75%|███████▌  | 15/20 [00:00<00:00, 25.86it/s]Ligand embedding: 100%|██████████| 20/20 [00:00<00:00, 31.90it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.32it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.25it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.25it/s]
+[DEKOIS] pim-1 AUC=0.4414, BEDROC=0.0041, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 0.0, '0.05': 0.4995967741935484}
+[DEKOIS] target=pi3kg, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.05it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 12.32it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 20.66it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 26.79it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 17.73it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.31it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.31it/s]
+[DEKOIS] pi3kg AUC=0.6129, BEDROC=0.2274, EF={'0.005': 8.857142857142858, '0.01': 9.538461538461538, '0.02': 6.2, '0.05': 3.5}
+[DEKOIS] target=pdk1, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.10it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 12.79it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 21.58it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 28.18it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.24it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.25it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.25it/s]
+[DEKOIS] pdk1 AUC=0.5389, BEDROC=0.0792, EF={'0.005': 4.428571428571429, '0.01': 2.3846153846153846, '0.02': 2.48, '0.05': 1.0}
+[DEKOIS] target=pde5, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.03it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 12.28it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 20.71it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 27.95it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.96it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.22it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.22it/s]
+[DEKOIS] pde5 AUC=0.6948, BEDROC=0.0742, EF={'0.005': 0.0, '0.01': 2.3846153846153846, '0.02': 2.48, '0.05': 2.0}
+[DEKOIS] target=pde4b, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  1.92it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01,  9.96it/s]Ligand embedding:  50%|█████     | 10/20 [00:00<00:00, 18.67it/s]Ligand embedding:  75%|███████▌  | 15/20 [00:00<00:00, 26.18it/s]Ligand embedding: 100%|██████████| 20/20 [00:00<00:00, 32.24it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 17.72it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.28it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.28it/s]
+[DEKOIS] pde4b AUC=0.4952, BEDROC=0.1017, EF={'0.005': 4.428571428571429, '0.01': 2.3846153846153846, '0.02': 2.48, '0.05': 3.5}
+[DEKOIS] target=parp-1, num_mols=1237
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.07it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 12.54it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 21.37it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 28.46it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.60it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.21it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.21it/s]
+[DEKOIS] parp-1 AUC=0.4867, BEDROC=0.1280, EF={'0.005': 8.835714285714285, '0.01': 4.757692307692308, '0.02': 2.4739999999999998, '0.05': 0.9975806451612904}
+[DEKOIS] target=p38-alpha, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.04it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 12.55it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 21.42it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 28.43it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.27it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.21it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.21it/s]
+[DEKOIS] p38-alpha AUC=0.6819, BEDROC=0.1452, EF={'0.005': 4.428571428571429, '0.01': 4.769230769230769, '0.02': 3.72, '0.05': 3.0}
+[DEKOIS] target=na, num_mols=1238
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:10,  1.85it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 11.80it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 20.12it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 26.71it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 17.91it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.26it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.26it/s]
+[DEKOIS] na AUC=0.4345, BEDROC=0.0000, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 0.0, '0.05': 0.0}
+[DEKOIS] target=mmp2, num_mols=1238
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:10,  1.86it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 11.70it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 19.51it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 26.01it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 17.76it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.26it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.26it/s]
+[DEKOIS] mmp2 AUC=0.3172, BEDROC=0.0361, EF={'0.005': 0.0, '0.01': 2.3807692307692307, '0.02': 1.238, '0.05': 0.4991935483870968}
+[DEKOIS] target=mk2, num_mols=1239
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.09it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01, 10.65it/s]Ligand embedding:  50%|█████     | 10/20 [00:00<00:00, 19.79it/s]Ligand embedding:  75%|███████▌  | 15/20 [00:00<00:00, 26.77it/s]Ligand embedding: 100%|██████████| 20/20 [00:00<00:00, 32.75it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.71it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.30it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.30it/s]
+[DEKOIS] mk2 AUC=0.6137, BEDROC=0.0756, EF={'0.005': 4.425, '0.01': 2.3826923076923077, '0.02': 2.478, '0.05': 1.4987903225806452}
+[DEKOIS] target=mdm2, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.07it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01, 10.49it/s]Ligand embedding:  50%|█████     | 10/20 [00:00<00:00, 19.23it/s]Ligand embedding:  75%|███████▌  | 15/20 [00:00<00:00, 26.13it/s]Ligand embedding: 100%|██████████| 20/20 [00:00<00:00, 32.20it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.46it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.36it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.36it/s]
+[DEKOIS] mdm2 AUC=0.5509, BEDROC=0.0156, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 1.24, '0.05': 0.5}
+[DEKOIS] target=lck, num_mols=1239
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:08,  2.11it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01, 10.79it/s]Ligand embedding:  45%|████▌     | 9/20 [00:00<00:00, 17.97it/s]Ligand embedding:  70%|███████   | 14/20 [00:00<00:00, 24.60it/s]Ligand embedding:  95%|█████████▌| 19/20 [00:00<00:00, 31.01it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.34it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.31it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.31it/s]
+[DEKOIS] lck AUC=0.6525, BEDROC=0.3312, EF={'0.005': 13.275, '0.01': 11.913461538461538, '0.02': 11.151, '0.05': 5.995161290322581}
+[DEKOIS] target=kif11, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.05it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 11.99it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 20.64it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 27.43it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.80it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.21it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.20it/s]
+[DEKOIS] kif11 AUC=0.1469, BEDROC=0.0001, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 0.0, '0.05': 0.0}
+[DEKOIS] target=jnk3, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  1.91it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01,  9.92it/s]Ligand embedding:  45%|████▌     | 9/20 [00:00<00:00, 16.85it/s]Ligand embedding:  70%|███████   | 14/20 [00:00<00:00, 24.81it/s]Ligand embedding:  95%|█████████▌| 19/20 [00:00<00:00, 31.11it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 17.84it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.30it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.29it/s]
+[DEKOIS] jnk3 AUC=0.5574, BEDROC=0.1506, EF={'0.005': 4.428571428571429, '0.01': 7.153846153846153, '0.02': 3.72, '0.05': 3.5}
+[DEKOIS] target=jnk2, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:12,  1.48it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01,  9.64it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 17.14it/s]Ligand embedding:  75%|███████▌  | 15/20 [00:01<00:00, 21.69it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 28.21it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 15.02it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.14it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.13it/s]
+[DEKOIS] jnk2 AUC=0.6216, BEDROC=0.1444, EF={'0.005': 4.428571428571429, '0.01': 2.3846153846153846, '0.02': 4.96, '0.05': 4.0}
+[DEKOIS] target=jnk1, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:08,  2.14it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01, 10.97it/s]Ligand embedding:  50%|█████     | 10/20 [00:00<00:00, 19.72it/s]Ligand embedding:  75%|███████▌  | 15/20 [00:00<00:00, 26.16it/s]Ligand embedding: 100%|██████████| 20/20 [00:00<00:00, 31.49it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.43it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.07it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.07it/s]
+[DEKOIS] jnk1 AUC=0.5979, BEDROC=0.2458, EF={'0.005': 17.714285714285715, '0.01': 9.538461538461538, '0.02': 6.2, '0.05': 3.0}
+[DEKOIS] target=jak3, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  1.96it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 12.08it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 20.40it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 27.27it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.48it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.21it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.21it/s]
+[DEKOIS] jak3 AUC=0.6516, BEDROC=0.0955, EF={'0.005': 4.428571428571429, '0.01': 2.3846153846153846, '0.02': 2.48, '0.05': 1.5}
+[DEKOIS] target=itk, num_mols=1238
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:08,  2.13it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 12.32it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 20.87it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 27.18it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.23it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.24it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.24it/s]
+[DEKOIS] itk AUC=0.7029, BEDROC=0.1921, EF={'0.005': 13.264285714285714, '0.01': 7.142307692307692, '0.02': 4.952, '0.05': 2.495967741935484}
+[DEKOIS] target=inha, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:08,  2.13it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01, 10.90it/s]Ligand embedding:  50%|█████     | 10/20 [00:00<00:00, 19.41it/s]Ligand embedding:  75%|███████▌  | 15/20 [00:00<00:00, 26.45it/s]Ligand embedding: 100%|██████████| 20/20 [00:00<00:00, 31.92it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.28it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.23it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.23it/s]
+[DEKOIS] inha AUC=0.3599, BEDROC=0.0000, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 0.0, '0.05': 0.0}
+[DEKOIS] target=igf1r, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:10,  1.75it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 10.97it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 18.62it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 25.25it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 16.37it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.34it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.34it/s]
+[DEKOIS] igf1r AUC=0.8768, BEDROC=0.6150, EF={'0.005': 26.571428571428573, '0.01': 19.076923076923077, '0.02': 18.6, '0.05': 11.5}
+[DEKOIS] target=hsp90, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:11,  1.62it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01,  8.60it/s]Ligand embedding:  50%|█████     | 10/20 [00:00<00:00, 16.58it/s]Ligand embedding:  75%|███████▌  | 15/20 [00:00<00:00, 23.88it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 29.88it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 15.91it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.18it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.18it/s]
+[DEKOIS] hsp90 AUC=0.4608, BEDROC=0.0408, EF={'0.005': 0.0, '0.01': 2.3846153846153846, '0.02': 1.24, '0.05': 1.5}
+[DEKOIS] target=hmgr, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  1.94it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01, 10.18it/s]Ligand embedding:  50%|█████     | 10/20 [00:00<00:00, 19.23it/s]Ligand embedding:  75%|███████▌  | 15/20 [00:00<00:00, 25.86it/s]Ligand embedding: 100%|██████████| 20/20 [00:00<00:00, 31.86it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.04it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.26it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.26it/s]
+[DEKOIS] hmgr AUC=0.2643, BEDROC=0.0000, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 0.0, '0.05': 0.0}
+[DEKOIS] target=hiv1rt, num_mols=1237
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.02it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01, 10.54it/s]Ligand embedding:  50%|█████     | 10/20 [00:00<00:00, 19.89it/s]Ligand embedding:  75%|███████▌  | 15/20 [00:00<00:00, 27.47it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 17.88it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.24it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.24it/s]
+[DEKOIS] hiv1rt AUC=0.5127, BEDROC=0.0638, EF={'0.005': 4.417857142857143, '0.01': 2.378846153846154, '0.02': 1.2369999999999999, '0.05': 0.4987903225806452}
+[DEKOIS] target=hiv1pr, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:10,  1.77it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01,  9.05it/s]Ligand embedding:  45%|████▌     | 9/20 [00:00<00:00, 15.55it/s]Ligand embedding:  65%|██████▌   | 13/20 [00:00<00:00, 21.25it/s]Ligand embedding:  90%|█████████ | 18/20 [00:01<00:00, 27.20it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 16.08it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.20it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.20it/s]
+[DEKOIS] hiv1pr AUC=0.6043, BEDROC=0.0801, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 2.48, '0.05': 4.0}
+[DEKOIS] target=hdac8, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:08,  2.13it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 12.76it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 21.45it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 28.15it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 19.21it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.28it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.28it/s]
+[DEKOIS] hdac8 AUC=0.3988, BEDROC=0.0699, EF={'0.005': 4.428571428571429, '0.01': 2.3846153846153846, '0.02': 1.24, '0.05': 1.5}
+[DEKOIS] target=hdac2, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:08,  2.12it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01, 10.57it/s]Ligand embedding:  45%|████▌     | 9/20 [00:00<00:00, 17.57it/s]Ligand embedding:  65%|██████▌   | 13/20 [00:00<00:00, 22.84it/s]Ligand embedding:  90%|█████████ | 18/20 [00:00<00:00, 28.78it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 17.08it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.27it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.27it/s]
+[DEKOIS] hdac2 AUC=0.4528, BEDROC=0.0157, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 0.0, '0.05': 1.5}
+[DEKOIS] target=gsk3b, num_mols=1239
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.03it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01, 10.54it/s]Ligand embedding:  50%|█████     | 10/20 [00:00<00:00, 19.57it/s]Ligand embedding:  75%|███████▌  | 15/20 [00:00<00:00, 26.48it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.02it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.21it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.21it/s]
+[DEKOIS] gsk3b AUC=0.5589, BEDROC=0.0784, EF={'0.005': 0.0, '0.01': 2.3826923076923077, '0.02': 2.478, '0.05': 1.9983870967741937}
+[DEKOIS] target=gr, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.00it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 12.41it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 20.56it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 26.87it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.11it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.26it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.26it/s]
+[DEKOIS] gr AUC=0.3811, BEDROC=0.0010, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 0.0, '0.05': 0.0}
+[DEKOIS] target=gba, num_mols=1236
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:08,  2.16it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 12.85it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 20.92it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 27.08it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.45it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.23it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.23it/s]
+[DEKOIS] gba AUC=0.6455, BEDROC=0.0614, EF={'0.005': 0.0, '0.01': 2.376923076923077, '0.02': 1.236, '0.05': 1.4951612903225806}
+[DEKOIS] target=fxa, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:10,  1.87it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01,  9.72it/s]Ligand embedding:  50%|█████     | 10/20 [00:00<00:00, 18.26it/s]Ligand embedding:  75%|███████▌  | 15/20 [00:00<00:00, 24.97it/s]Ligand embedding: 100%|██████████| 20/20 [00:00<00:00, 30.60it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 16.80it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.26it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.26it/s]
+[DEKOIS] fxa AUC=0.6241, BEDROC=0.0018, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 0.0, '0.05': 0.5}
+[DEKOIS] target=fkbp1a, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:11,  1.61it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01,  8.61it/s]Ligand embedding:  45%|████▌     | 9/20 [00:00<00:00, 14.72it/s]Ligand embedding:  65%|██████▌   | 13/20 [00:00<00:00, 20.35it/s]Ligand embedding:  90%|█████████ | 18/20 [00:01<00:00, 27.47it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 16.02it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.32it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.31it/s]
+[DEKOIS] fkbp1a AUC=0.3964, BEDROC=0.0164, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 1.24, '0.05': 0.5}
+[DEKOIS] target=fgfr1, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  1.98it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 12.32it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 20.22it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 26.14it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.02it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.49it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.49it/s]
+[DEKOIS] fgfr1 AUC=0.7436, BEDROC=0.3174, EF={'0.005': 17.714285714285715, '0.01': 11.923076923076923, '0.02': 7.44, '0.05': 6.5}
+[DEKOIS] target=erbb2, num_mols=1239
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.07it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01, 10.46it/s]Ligand embedding:  50%|█████     | 10/20 [00:00<00:00, 19.44it/s]Ligand embedding:  75%|███████▌  | 15/20 [00:00<00:00, 25.92it/s]Ligand embedding: 100%|██████████| 20/20 [00:00<00:00, 31.97it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.25it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.22it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.22it/s]
+[DEKOIS] erbb2 AUC=0.5866, BEDROC=0.2888, EF={'0.005': 13.275, '0.01': 14.296153846153846, '0.02': 7.434, '0.05': 2.9975806451612903}
+[DEKOIS] target=er-beta, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.11it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 12.78it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 21.10it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 26.88it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.75it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.29it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.29it/s]
+[DEKOIS] er-beta AUC=0.1916, BEDROC=0.0379, EF={'0.005': 0.0, '0.01': 2.3846153846153846, '0.02': 1.24, '0.05': 0.5}
+[DEKOIS] target=ephb4, num_mols=1239
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:08,  2.11it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01, 10.72it/s]Ligand embedding:  45%|████▌     | 9/20 [00:00<00:00, 17.90it/s]Ligand embedding:  70%|███████   | 14/20 [00:00<00:00, 24.92it/s]Ligand embedding:  95%|█████████▌| 19/20 [00:00<00:00, 30.98it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 17.79it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.28it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.28it/s]
+[DEKOIS] ephb4 AUC=0.5529, BEDROC=0.0116, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 0.0, '0.05': 0.4995967741935484}
+[DEKOIS] target=egfr, num_mols=1237
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:08,  2.14it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01, 10.85it/s]Ligand embedding:  50%|█████     | 10/20 [00:00<00:00, 19.17it/s]Ligand embedding:  75%|███████▌  | 15/20 [00:00<00:00, 26.53it/s]Ligand embedding: 100%|██████████| 20/20 [00:00<00:00, 31.91it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.02it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.24it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.24it/s]
+[DEKOIS] egfr AUC=0.5774, BEDROC=0.2064, EF={'0.005': 8.835714285714285, '0.01': 9.515384615384615, '0.02': 4.9479999999999995, '0.05': 2.992741935483871}
+[DEKOIS] target=dhfr, num_mols=1239
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:08,  2.14it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 12.81it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 20.58it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 27.70it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.55it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.31it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.31it/s]
+[DEKOIS] dhfr AUC=0.5661, BEDROC=0.0023, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 0.0, '0.05': 0.4995967741935484}
+[DEKOIS] target=cyp2a6, num_mols=1239
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:08,  2.13it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01, 10.71it/s]Ligand embedding:  50%|█████     | 10/20 [00:00<00:00, 19.86it/s]Ligand embedding:  75%|███████▌  | 15/20 [00:00<00:00, 27.41it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.85it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.20it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.20it/s]
+[DEKOIS] cyp2a6 AUC=0.2732, BEDROC=0.0257, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 1.239, '0.05': 0.4995967741935484}
+[DEKOIS] target=ctsk, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.04it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01, 10.51it/s]Ligand embedding:  50%|█████     | 10/20 [00:00<00:00, 19.57it/s]Ligand embedding:  75%|███████▌  | 15/20 [00:00<00:00, 26.16it/s]Ligand embedding: 100%|██████████| 20/20 [00:00<00:00, 32.27it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.49it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.20it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.20it/s]
+[DEKOIS] ctsk AUC=0.4634, BEDROC=0.0015, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 0.0, '0.05': 0.0}
+[DEKOIS] target=cox2, num_mols=1239
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:08,  2.12it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 12.65it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 21.28it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 27.65it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.85it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.17it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.17it/s]
+[DEKOIS] cox2 AUC=0.2014, BEDROC=0.0000, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 0.0, '0.05': 0.0}
+[DEKOIS] target=cox1, num_mols=1239
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.09it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 12.79it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 21.24it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 27.88it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.92it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.18it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.18it/s]
+[DEKOIS] cox1 AUC=0.3227, BEDROC=0.0000, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 0.0, '0.05': 0.0}
+[DEKOIS] target=cdk2, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.11it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01, 10.79it/s]Ligand embedding:  50%|█████     | 10/20 [00:00<00:00, 19.97it/s]Ligand embedding:  75%|███████▌  | 15/20 [00:00<00:00, 27.03it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.83it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.20it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.20it/s]
+[DEKOIS] cdk2 AUC=0.5632, BEDROC=0.0845, EF={'0.005': 4.428571428571429, '0.01': 2.3846153846153846, '0.02': 1.24, '0.05': 3.0}
+[DEKOIS] target=catl, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.09it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01, 10.59it/s]Ligand embedding:  50%|█████     | 10/20 [00:00<00:00, 19.49it/s]Ligand embedding:  75%|███████▌  | 15/20 [00:00<00:00, 26.37it/s]Ligand embedding: 100%|██████████| 20/20 [00:00<00:00, 31.67it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 17.55it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.29it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.29it/s]
+[DEKOIS] catl AUC=0.5439, BEDROC=0.0425, EF={'0.005': 0.0, '0.01': 2.3846153846153846, '0.02': 1.24, '0.05': 1.0}
+[DEKOIS] target=braf, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:08,  2.12it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 12.49it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 20.94it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 27.24it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 17.89it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.34it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.34it/s]
+[DEKOIS] braf AUC=0.5899, BEDROC=0.0945, EF={'0.005': 4.428571428571429, '0.01': 2.3846153846153846, '0.02': 1.24, '0.05': 2.5}
+[DEKOIS] target=bcl2, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.06it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01, 10.61it/s]Ligand embedding:  45%|████▌     | 9/20 [00:00<00:00, 17.65it/s]Ligand embedding:  65%|██████▌   | 13/20 [00:00<00:00, 22.99it/s]Ligand embedding:  90%|█████████ | 18/20 [00:00<00:00, 29.52it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 17.33it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.13it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.13it/s]
+[DEKOIS] bcl2 AUC=0.7423, BEDROC=0.2196, EF={'0.005': 4.428571428571429, '0.01': 4.769230769230769, '0.02': 8.68, '0.05': 6.5}
+[DEKOIS] target=aurkb, num_mols=1239
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.02it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01, 10.34it/s]Ligand embedding:  45%|████▌     | 9/20 [00:00<00:00, 17.36it/s]Ligand embedding:  70%|███████   | 14/20 [00:00<00:00, 24.94it/s]Ligand embedding:  95%|█████████▌| 19/20 [00:00<00:00, 30.57it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 17.37it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.18it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.18it/s]
+[DEKOIS] aurkb AUC=0.6748, BEDROC=0.3103, EF={'0.005': 13.275, '0.01': 11.913461538461538, '0.02': 7.434, '0.05': 4.496370967741935}
+[DEKOIS] target=aurka, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.01it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 12.16it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 20.78it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 27.09it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.19it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.25it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.24it/s]
+[DEKOIS] aurka AUC=0.6601, BEDROC=0.3146, EF={'0.005': 13.285714285714286, '0.01': 11.923076923076923, '0.02': 7.44, '0.05': 6.5}
+[DEKOIS] target=ar, num_mols=1238
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.08it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 12.46it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 20.43it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 27.01it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.70it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.31it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.31it/s]
+[DEKOIS] ar AUC=0.3834, BEDROC=0.0061, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 0.0, '0.05': 0.4991935483870968}
+[DEKOIS] target=alr2, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.10it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 12.70it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 21.63it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 28.88it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 19.34it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.26it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.25it/s]
+[DEKOIS] alr2 AUC=0.2677, BEDROC=0.0000, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 0.0, '0.05': 0.0}
+[DEKOIS] target=akt1, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:08,  2.14it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01, 10.56it/s]Ligand embedding:  50%|█████     | 10/20 [00:00<00:00, 19.68it/s]Ligand embedding:  75%|███████▌  | 15/20 [00:00<00:00, 26.60it/s]Ligand embedding: 100%|██████████| 20/20 [00:00<00:00, 32.25it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 17.73it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.22it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.21it/s]
+[DEKOIS] akt1 AUC=0.7328, BEDROC=0.4045, EF={'0.005': 13.285714285714286, '0.01': 16.692307692307693, '0.02': 12.4, '0.05': 6.5}
+[DEKOIS] target=adrb2, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.02it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01, 10.46it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 21.33it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 27.74it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.28it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.20it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.20it/s]
+[DEKOIS] adrb2 AUC=0.3460, BEDROC=0.0754, EF={'0.005': 4.428571428571429, '0.01': 2.3846153846153846, '0.02': 1.24, '0.05': 1.0}
+[DEKOIS] target=adam17, num_mols=1239
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.07it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 12.50it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 20.89it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 27.51it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 19.01it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.24it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.24it/s]
+[DEKOIS] adam17 AUC=0.2803, BEDROC=0.0211, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 1.239, '0.05': 0.4995967741935484}
+[DEKOIS] target=ache, num_mols=1238
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.02it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 12.22it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 20.85it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 27.86it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.68it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.21it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.21it/s]
+[DEKOIS] ache AUC=0.5548, BEDROC=0.2851, EF={'0.005': 13.264285714285714, '0.01': 7.142307692307692, '0.02': 8.666, '0.05': 5.491129032258065}
+[DEKOIS] target=ace2, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.00it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 12.08it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 20.30it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 27.17it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.25it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.19it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.19it/s]
+[DEKOIS] ace2 AUC=0.1005, BEDROC=0.0000, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 0.0, '0.05': 0.0}
+[DEKOIS] target=ace, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  1.98it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01, 10.22it/s]Ligand embedding:  50%|█████     | 10/20 [00:00<00:00, 19.33it/s]Ligand embedding:  75%|███████▌  | 15/20 [00:00<00:00, 26.23it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.37it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.33it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.33it/s]
+[DEKOIS] ace AUC=0.2524, BEDROC=0.0524, EF={'0.005': 4.428571428571429, '0.01': 2.3846153846153846, '0.02': 1.24, '0.05': 0.5}
+[DEKOIS] target=a2a, num_mols=1240
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:12,  1.52it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01,  9.93it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 17.29it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 24.00it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 15.85it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.33it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.33it/s]
+[DEKOIS] a2a AUC=0.6427, BEDROC=0.1774, EF={'0.005': 8.857142857142858, '0.01': 7.153846153846153, '0.02': 4.96, '0.05': 2.5}
+[DEKOIS] target=17betahsd1, num_mols=1239
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:09,  2.09it/s]Ligand embedding:  25%|██▌       | 5/20 [00:00<00:01, 10.76it/s]Ligand embedding:  50%|█████     | 10/20 [00:00<00:00, 20.19it/s]Ligand embedding:  75%|███████▌  | 15/20 [00:00<00:00, 26.60it/s]Ligand embedding: 100%|██████████| 20/20 [00:00<00:00, 32.64it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 18.76it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.32it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.32it/s]
+[DEKOIS] 17betahsd1 AUC=0.1834, BEDROC=0.0226, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 1.2707692307692309, '0.05': 0.5124069478908189}
+[DEKOIS] target=11betahsd1, num_mols=1236
+Ligand embedding:   0%|          | 0/20 [00:00<?, ?it/s]Ligand embedding:   5%|▌         | 1/20 [00:00<00:08,  2.11it/s]Ligand embedding:  30%|███       | 6/20 [00:00<00:01, 12.90it/s]Ligand embedding:  55%|█████▌    | 11/20 [00:00<00:00, 21.43it/s]Ligand embedding:  80%|████████  | 16/20 [00:00<00:00, 28.00it/s]Ligand embedding: 100%|██████████| 20/20 [00:01<00:00, 19.16it/s]
+Pocket embedding:   0%|          | 0/1 [00:00<?, ?it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.28it/s]Pocket embedding: 100%|██████████| 1/1 [00:00<00:00,  1.28it/s]
+[DEKOIS] 11betahsd1 AUC=0.4785, BEDROC=0.0245, EF={'0.005': 0.0, '0.01': 0.0, '0.02': 1.3362162162162161, '0.05': 0.5387968613775065}
+auc mean 0.49821847483879006
+bedroc mean 0.09738532959459327
+ef 0.005 mean 3.8797573825351606
+ef 0.01 mean 3.3249251223610203
+ef 0.02 mean 2.67933062121951
+ef 0.05 mean 1.9697228649979988
+re 0.005 mean 4.935694312546164
+re 0.01 mean 3.9176657961380186
+re 0.02 mean 2.9477595205604463
+re 0.05 mean 2.0067593051185333
+exit 0
+Sat Oct 24 08:30:03 UTC 2026

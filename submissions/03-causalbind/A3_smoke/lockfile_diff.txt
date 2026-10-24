@@ -1,0 +1,12 @@
+217c217
+<       - setuptools==84.0.0
+---
+>       - setuptools==84.2.1
+247c247
+< prefix: /home/sieeucaapsddepjtrai/miniforge3/envs/causalbind
+---
+> prefix: /root/miniforge3/envs/causalbind
+143c143
+< setuptools==84.0.0
+---
+> setuptools==84.2.1

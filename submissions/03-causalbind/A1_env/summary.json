@@ -1,0 +1,34 @@
+{
+  "model": "CausalBind",
+  "assignee_id": "03-causalbind",
+  "stage": "A1_env",
+  "environment": {
+    "python": "3.11.8",
+    "torch": "2.7.0+cu118",
+    "cuda": "11.8",
+    "gpu": "NVIDIA GeForce RTX 3060, 12288 MiB (shared with the desktop session)",
+    "lockfile": "A1_env/environment.yml",
+    "notes": "conda 26.7.2 (Miniforge). Uni-Core ace6fae1c8479a9751f2bb1e1d6e4047427bc134, installed without --enable-cuda-ext, so fused kernels fall back to PyTorch. A3, B and C will run on rented A100 80GB."
+  },
+  "code": {
+    "upstream_url": "https://github.com/lokali/CausalBind",
+    "upstream_commit": "01fe8e93ca261f990e37ba3df7e7024cc5fa36dd",
+    "changes_diff_sha256": "f665793bf1b820f569c16c1a913160da6f3fa63f5511d7be7ac09136df3cf268",
+    "changes_justified": true
+  },
+  "run": {
+    "seed": 1,
+    "checkpoint_rule": "last",
+    "checkpoint_rule_source": "assignments/03-causalbind.md (Notes: score checkpoint_last.pt); CausalBind README 'Evaluation' and DATA.md 'Train/Test Protocol': the paper reports the last checkpoint (epoch 50) of each run",
+    "command_file": "code/run.sh",
+    "wall_clock_hours": 2.0,
+    "gpu_hours": 0
+  },
+  "results": [],
+  "problems": [
+    "environment.yml pins hf-xet==1.1.5rc1, which is no longer on PyPI, so the pip step of conda env create fails; changed to hf-xet==1.1.5 with the lead's approval (issue #8), recorded in code/changes.diff",
+    "The CausalBind README installs Uni-Core from its default branch without a pinned commit; used ace6fae1c8479a9751f2bb1e1d6e4047427bc134",
+    "python setup.py install for Uni-Core also fetched setuptools 84.0.0 as an egg; the active setuptools stays 75.8.0, but the exported environment.yml lists setuptools==84.0.0",
+    "The pip section of environment.yml replaces 12 conda-installed Jupyter dependencies (e.g. ipython 9.17.1 -> 9.3.0) with its pinned versions"
+  ]
+}

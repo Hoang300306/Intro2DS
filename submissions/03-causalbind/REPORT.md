@@ -145,9 +145,174 @@ file.
 
 ## A3 — smoke train, and what the real runs will cost
 
-What subset you trained on, how long one epoch took, and **your extrapolated cost for checkpoint B
-and for each variant in C**. Say what you extrapolated from. We approve the expensive runs from this
-number, so a careless guess here means either a blocked run or a wasted one.
+Run on one rented A100-SXM4-80GB (Vast.ai), with the environment rebuilt from `code/run.sh`.
+
+### Environment rebuilt on the A100
+
+The rebuilt environment matches A1. `A3_smoke/lockfile_diff.txt` shows only two differences:
+
+- the env prefix;
+- the setuptools egg that Uni-Core's install fetches (84.2.1 here, 84.0.0 at A1).
+
+Every pinned package came out at the same version. `import_test.txt` gives
+`2.7.0+cu118 / 11.8 / True`. The pre-flight passed:
+
+- upstream commit `01fe8e93`;
+- `changes.diff` unchanged;
+- `frozen.sha256` clean.
+
+The downloads match what was used before:
+
+- the backbone sha256s and the DEKOIS md5 equal A2;
+- the eight training-data files match the md5s figshare publishes;
+- `--check-source` gives the same two digests as A2.
+
+One step had to differ from A1. The image ships the CUDA 11.8 toolkit, and with it torchsort's
+source build failed (see Problems). `/usr/local/cuda` was moved aside for that one command, so
+torchsort built its CPU extension only, as on the A1 machine, which has no toolkit.
+`environment.yml` and `changes.diff` are unchanged.
+
+### The smoke run
+
+**Subset.** `code/make_smoke_subset.py` draws a seed-1 sample of 400 ChEMBL/BindingDB assays and
+100 PDBbind pairs from the released label files:
+
+- `train_label_blend_seq_full.json` sha256 `62a68509…c864`;
+- `train_label_pdbbind_seq.json` sha256 `f913809d…22fe`.
+
+`train_task.py` applies its usual FEP and test-target filters, and 278 assays survive. That gives
+481 training items, which is 20 updates at batch 24.
+
+**Command.** `code/smoke_train.sh` is `scripts/train.sh` with four changes:
+
+- the data directory is an argument;
+- `REPO_DIR` is fixed;
+- one GPU;
+- `--max-epoch 1`.
+
+Every other flag is unchanged (batch 24, lr 1e-4, fp16, seed 1, CASF validation).
+
+**Timings.** One epoch took 11 min 27 s end to end:
+
+| Phase | Time |
+|---|---|
+| start-up and model build | 16 s |
+| rebuild of the two index files (`cache/`, see Problems) | 10 min 34 s |
+| 20 training updates | 20 s, i.e. about **1.0 s per update** |
+| CASF validation | 4 s |
+| saving and copying the checkpoint | 11 s |
+
+**Checkpoint.** `checkpoint_last.pt` is sha256 `f3fba02c…d2ad`, 3.16 GB.
+
+It loads again: scoring it with the unmodified evaluator on DEKOIS completed all 81 targets with
+no `checkpoint/architecture mismatch` warning. The scores are those of an untrained model
+(AUROC 0.498, BEDROC 0.097, EF@1% 3.32), as expected after 20 updates inside the warm-up. The
+validation line prints `loss 0` because `three_hybrid_loss.py` sets the validation loss to 0
+(line 176); it is not a failure.
+
+### What stops a run
+
+Training stops at a fixed epoch count, with no early stopping:
+
+- `scripts/train.sh` passes `--max-epoch 50` and no `--patience`, and Uni-Core's default
+  `--patience` is -1, i.e. off (`unicore/options.py:388`).
+- The README and DATA.md both say 50 epochs, and the paper reports the epoch-50 checkpoint.
+
+So the cost below is the per-epoch time multiplied by 50, not a guess at an early stop.
+
+### Estimated cost of B and C
+
+**Extrapolated from:** the measured 1.0 s per update (1 GPU, batch 24 per GPU, as in the real
+runs), scaled to the real epoch size.
+
+**Epoch size.** Applying `train_task.py`'s filters to the released labels leaves 18,316 assays
+(the count DATA.md states). Cut into blocks of 32 ligands, plus the 16,744 PDBbind pairs, that is
+45,163 items per epoch. At a global batch of 96 on 4 GPUs, that is **471 updates per epoch**.
+
+**Per epoch.** 471 updates × 1.0–1.15 s, allowing 0–15 % for 4-GPU all-reduce, plus validation and
+checkpointing, comes to **8.1–9.3 min per epoch**.
+
+**Per run.** × 50 epochs = **6.8–7.7 h**. The README states 5–6 h on 4× A100 80GB, which
+corresponds to 0.73–0.89 s per update. Twenty updates are a small sample that includes start-up
+effects, so I take **5–8 h per run** as the range.
+
+**Plan: 4× A100 80GB, as in the paper.**
+
+| | Wall clock | Rented GPU-hours (4× A100) |
+|---|---|---|
+| Training, one 50-epoch run | 5–8 h | 20–32 |
+| Machine set-up, once (environment, downloads, checks) | ~0.5 h | ~2 |
+| Scoring each retrained checkpoint (DUD-E, LIT-PCBA, DEKOIS, FEP): `checkpoint_last.pt` is copied back and scored on the local RTX 3060, as at A2 (1.48 h there), while the next run trains | ~1.5 h local | 0 |
+| **B** (set-up + one run) | **5.5–8.5 h** | **22–34** |
+| **Each variant in C** (`pocketaffdb_ligandish`, `pocketaffdb_ligandish_matched`), on the same machine | **5–8 h** | **20–32** |
+| **B + C** | **15.5–24.5 h** | **62–98** |
+
+At the Vast.ai A100 prices seen here ($1.2–2 per GPU-hour), B + C is about **$75–195**.
+
+Training is the whole of the rented cost: 23,550 updates (471 × 50). The range comes from the
+per-update time:
+
+- **Lower end, README:** 5–6 h per run, i.e. 0.73–0.89 s per update, gives 62–74 GPU-hours.
+- **Upper end, A3:** 1.0–1.15 s per update gives up to 98 GPU-hours.
+
+The A3 figure comes from only 20 updates, start-up included. It may also be slow because Uni-Core
+is installed without its fused kernels, as the README does (the `fused_* is not installed` lines),
+or because `--num-workers 0` prepares every batch (about 400 ligands and 24 pockets per GPU) on one
+CPU core. Both are guesses, not measurements, so the range is left wide and narrowed at the start
+of B (below).
+
+Assumptions behind these numbers:
+
+- **No index rebuild.** The released index files are placed in `data/cache/`, which skips the
+  10.6-min rebuild at start-up. They are byte-identical to what `train_task.py` builds.
+- **Disk.** The machine needs at least **250 GB**. Each checkpoint is 3.16 GB and `train.sh`
+  keeps all 50 epochs plus up to 8 best, about 190 GB per run. After a run's `checkpoint_last.pt`
+  has been copied back and hashed, its per-epoch checkpoints can be deleted before the next run.
+  `--keep-last-epochs` itself is left unchanged.
+- **Interruptions.** A checkpoint is written every epoch, so an interrupted session loses at most
+  one epoch, about 9 min or 0.6 GPU-hours. Uni-Core resumes from `checkpoint_last.pt`.
+
+### Measuring at the start of B
+
+In the first ~300 updates of B (about 5 min after start-up), two things are measured.
+
+**1. The real time per update on 4 GPUs.** It is read from the timestamps of the train log's
+every-100-update lines.
+
+**2. Whether the run is data-bound.** Two things are recorded:
+
+- GPU utilisation every 5 s, with `nvidia-smi dmon -s u -d 5`;
+- the CPU use of the four training processes, with `top`.
+
+The cost is then recomputed and reported, and the run goes on or stops by this rule:
+
+| Measured time per update | Run length | Action |
+|---|---|---|
+| ≤ 0.89 s | ≤ 6 h | Within the README figure; continue |
+| 0.89–1.15 s | 6–8 h | Within this estimate; continue, and report the number |
+| > 1.15 s | > 8 h | Stop before the end of the first epoch and report to the lead with the numbers. The run resumes from `checkpoint_last.pt`, so stopping costs little. |
+
+If GPU utilisation stays well below full while each training process holds a CPU core at 100 %,
+the run is waiting on data. In that case an issue proposing a larger `--num-workers` is opened,
+with the measurements. Building Uni-Core with `--enable-cuda-ext` would be a separate proposal.
+Neither is changed without the lead's approval, because both depart from the released
+configuration.
+
+This is the configuration the assignment asks for (`sp`, 4 GPUs, global batch 96, 50 epochs);
+fewer GPUs or epochs would change the experiment. Whether 62–98 GPU-hours fits the budget is for
+the lead to decide; if it does not, the assignment's fallback is `emb`.
+
+### Cost of A3
+
+The instance was rented from 07:24 to about 08:37 UTC, i.e. **1.2 GPU-hours** (1 GPU). Of that,
+the GPU computed for under 6 minutes (training 20 s, reload scoring 4.7 min). The rest was:
+
+- building the environment (twice, because of torchsort);
+- downloads;
+- the index rebuild.
+
+Checkpoint A comes to about 2.7 GPU-hours in total (A2 1.48 + A3 1.2), over its 1 GPU-hour
+budget.
 
 ## B — retrain on the released training data
 
@@ -201,3 +366,25 @@ you ran and what came out.
 - The DUD-E log is missing its exit-code and end-time lines (those commands were not run). The
   run printed every mean and ended normally; the end time 00:31:22 is the log's last write.
 - A2 used 1.48 GPU-hours, over the 1 GPU-hour budget for checkpoint A.
+- `conda env create` failed on the rented machine. torchsort 0.1.10 is source-only, so pip
+  builds it in an isolated env with the latest torch (CUDA 13.0). With the image's nvcc 11.8 on
+  the path it also builds a CUDA kernel, and torch refuses the CUDA version mismatch. The A1
+  machine has no toolkit, so there torchsort built only its CPU extension. `/usr/local/cuda` was
+  moved aside for that one command, giving the same build; `environment.yml` and
+  `code/changes.diff` are unchanged.
+- Miniforge is installed from `releases/latest`, which moved from conda 26.7.2 (A1) to 26.9.4
+  (A3). The environment itself is pinned and came out the same.
+- `PairDataset` reads `DATA_DIR/cache/{mol_smi2idx,pocket_name2idx}_train_blend.json`, but
+  `download_data.sh` saves the released copies in `data/`. Without them, the first run rebuilds
+  both on one CPU core: 10.6 min here, before the first update. The rebuilt files are
+  byte-identical to the released ones.
+- A first version of `code/check_index_cache.py` looked records up by the key `str(idx)`, as the
+  evaluator's `unimol` LMDBDataset does, and reported every sample as mismatched.
+  `train_task.py` uses `unicore.data.LMDBDataset`, which indexes in LMDB key order. Corrected in
+  commit `d834484`; the corrected check and the byte comparison both pass.
+- Each training checkpoint is 3.16 GB, because it holds the optimizer state. With
+  `--keep-last-epochs 50` and up to 8 best checkpoints, a 50-epoch run writes about 190 GB.
+- Scoring the smoke checkpoint on DEKOIS took 4.7 min on the A100, against 2.7 min for the
+  released checkpoint on the RTX 3060. Not investigated. Two candidate causes: loading the
+  3.16 GB checkpoint, and the live UniProt fetch on a fresh machine.
+- Checkpoint A used about 2.7 GPU-hours, over the 1 GPU-hour budget.

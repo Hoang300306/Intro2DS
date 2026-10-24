@@ -134,6 +134,139 @@ cd ~/Intro2DS/submissions/03-causalbind
 for f in DUDE PCBA DEKOIS FEP; do echo "==== ~/causalbind_logs/A2_$f.log ===="; cat ~/causalbind_logs/A2_$f.log; done > A2_reproduce/log.txt
 cd ~/CausalBind
 # ---- A3: smoke train (1 epoch, small subset) ----------------------------------------------
+# Vast.ai instance 57482916: 1x A100-SXM4-80GB, driver 535.230.02, 80 GB disk, image
+# nvidia/cuda:11.8.0-cudnn8-devel-ubuntu22.04, logged in as root; rented 07:24 UTC 2026-10-24.
+# A3.0 (local) copy the submission repository to the instance (the branch is not pushed); the
+# first rsync was checked before it had finished, so it was run again with -v
+rsync -a -e "ssh -p 10970" ~/Intro2DS root@192.165.134.28:~/
+rsync -av -e "ssh -p 10970" ~/Intro2DS root@192.165.134.28:~/
+ssh -p 10970 root@192.165.134.28
+# (instance) rsync keeps the local owner (uid 1000), and git refuses a repository root does not own
+chown -R root:root ~/Intro2DS
+cd ~/Intro2DS && git log --oneline -1 && git status --short | wc -l
+ls submissions/03-causalbind/code
+
+# A3.1 system packages the image lacks, then Miniforge non-interactively (latest -> conda 26.9.4;
+# A1 had 26.7.2)
+apt-get update
+apt-get install -y git wget rsync unzip build-essential
+cd ~
+wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
+bash Miniforge3-Linux-x86_64.sh -b -p ~/miniforge3
+eval "$(~/miniforge3/bin/conda shell.bash hook)"
+conda --version
+conda config --set auto_activate_base false
+
+# A3.2 CausalBind at the upstream commit with the approved pin, the environment, Uni-Core (as A1)
+git clone https://github.com/lokali/CausalBind.git ~/CausalBind
+cd ~/CausalBind
+git checkout 01fe8e93ca261f990e37ba3df7e7024cc5fa36dd
+sed -i 's/hf-xet==1.1.5rc1/hf-xet==1.1.5/' environment.yml
+# The first attempt failed in the pip step and is kept here as a comment:
+#   conda env create -f environment.yml 2>&1 | tee ~/env_create.log
+# torchsort==0.1.10 is source-only; pip builds it in an isolated env with the latest torch (CUDA
+# 13.0), and with the image's nvcc 11.8 on the path it also builds its CUDA kernel, which torch
+# refuses ("The detected CUDA version (11.8) mismatches ... (13.0)"). The A1 machine has no CUDA
+# toolkit, so there torchsort built its CPU extension only. Hiding the toolkit for this one step
+# gives the same build as A1 and leaves environment.yml and code/changes.diff unchanged.
+eval "$(~/miniforge3/bin/conda shell.bash hook)"
+conda env remove -n causalbind -y
+mv /usr/local/cuda /usr/local/cuda.hidden
+conda env create -f ~/CausalBind/environment.yml 2>&1 | tee ~/env_create.log
+mv /usr/local/cuda.hidden /usr/local/cuda
+conda activate causalbind
+pip list | grep -i -E "^torch |torchsort|hf.xet"
+cd ~
+git clone https://github.com/dptech-corp/Uni-Core.git
+cd Uni-Core
+git checkout ace6fae1c8479a9751f2bb1e1d6e4047427bc134
+python setup.py install 2>&1 | tee ~/unicore_install.log
+
+# A3.3 lockfiles from this machine, diffed against A1 (diff exits 1 when they differ)
+mkdir -p ~/causalbind_logs ~/Intro2DS/submissions/03-causalbind/A3_smoke
+cd ~/Intro2DS/submissions/03-causalbind
+conda env export > A3_smoke/environment.yml
+pip list --format=freeze > A3_smoke/requirements.txt
+nvidia-smi > A3_smoke/nvidia-smi.txt
+diff A1_env/environment.yml A3_smoke/environment.yml > A3_smoke/lockfile_diff.txt || true
+diff A1_env/requirements.txt A3_smoke/requirements.txt >> A3_smoke/lockfile_diff.txt || true
+cd ~/CausalBind
+python -c "import unicore, unimol; import torch; print(torch.__version__); print(torch.version.cuda); print(torch.cuda.is_available())" > ~/Intro2DS/submissions/03-causalbind/A3_smoke/import_test.txt 2>&1
+cat ~/Intro2DS/submissions/03-causalbind/A3_smoke/lockfile_diff.txt
+tail -3 ~/Intro2DS/submissions/03-causalbind/A3_smoke/import_test.txt
+
+# A3.4 pre-flight: upstream commit, the only diff, and the frozen evaluation path
+cd ~/CausalBind
+git rev-parse HEAD
+git diff | diff - ~/Intro2DS/submissions/03-causalbind/code/changes.diff && echo "diff OK"
+sha256sum -c --quiet ~/Intro2DS/submissions/03-causalbind/code/frozen.sha256 && echo "frozen OK"
+
+# A3.5 downloads: backbones, training data (figshare 27966819), test index files and DEKOIS;
+# md5s compared with the figshare API (valid_lig.lmdb and valid_prot.lmdb are one file: each
+# record holds both the ligand and the pocket)
+bash scripts/download_data.sh pretrain 2>&1 | tee ~/causalbind_logs/A3_download_pretrain.log
+sha256sum pretrain/*.pt | tee ~/causalbind_logs/A3_pretrain_sha256.txt
+bash scripts/download_data.sh train 2>&1 | tee ~/causalbind_logs/A3_download_train.log
+bash scripts/download_data.sh test 2>&1 | tee ~/causalbind_logs/A3_download_test.log
+md5sum data/valid_label_seq.json data/valid_lig.lmdb data/valid_prot.lmdb data/train_label.zip data/pocket_name2idx_train_blend.json data/mol_smi2idx_train_blend.json data/train_prot_all_blend.lmdb data/train_lig_all_blend.lmdb | tee ~/causalbind_logs/A3_train_md5.txt
+if cmp -s data/valid_lig.lmdb data/valid_prot.lmdb; then echo "valid_lig.lmdb and valid_prot.lmdb are identical"; else echo "valid_lig.lmdb and valid_prot.lmdb differ"; fi | tee -a ~/causalbind_logs/A3_train_md5.txt
+
+# A3.6 source digest of the released labels on this machine (as A2.6)
+S=~/Intro2DS/splits/specs/pocketaffdb_ligandish
+python3 ~/Intro2DS/tools/apply_variant.py --check-source $S/pocketaffdb_ligandish__train_label_blend_seq_full.json.gz data/train_label_blend_seq_full.json 2>&1 | tee ~/causalbind_logs/A3_check_source.txt
+python3 ~/Intro2DS/tools/apply_variant.py --check-source $S/pocketaffdb_ligandish__train_label_pdbbind_seq.json.gz data/train_label_pdbbind_seq.json 2>&1 | tee -a ~/causalbind_logs/A3_check_source.txt
+
+# A3.7 the released index files against the LMDBs. This first ran with a version of
+# check_index_cache.py that looked records up by the key str(idx) and reported every sample as
+# mismatched; train_task.py reads with unicore.data.LMDBDataset, which indexes in LMDB key order.
+# The corrected script is run in A3.11, after the smoke run had rebuilt both files.
+C=~/Intro2DS/submissions/03-causalbind/code
+
+# A3.8 smoke data directory, outside the repository: the subset labels, everything else linked;
+# cache/ is left empty, so train_task.py rebuilds both index files itself
+D=~/causalbind_smoke_data
+mkdir -p $D
+python $C/make_smoke_subset.py data $D 400 100 1 2>&1 | tee ~/causalbind_logs/A3_subset.txt
+for f in train_lig_all_blend.lmdb train_prot_all_blend.lmdb valid_lig.lmdb valid_prot.lmdb valid_label_seq.json fep_assays.json fep_repeat_ligands_can.json fep_similar_ligands_0d5.json; do ln -s ~/CausalBind/data/$f $D/$f; done
+ls -l $D
+
+# A3.9 smoke train: one epoch, one GPU, seed 1 (the save root must not contain "no_similar")
+nvidia-smi --query-gpu=memory.used,memory.total,utilization.gpu --format=csv
+date | tee ~/causalbind_logs/A3_smoke.log
+bash $C/smoke_train.sh sp $D ~/causalbind_save/A3_smoke 1 2>&1 | tee -a ~/causalbind_logs/A3_smoke.log
+echo "exit ${PIPESTATUS[0]}" | tee -a ~/causalbind_logs/A3_smoke.log
+date | tee -a ~/causalbind_logs/A3_smoke.log
+
+# A3.10 the checkpoint loads again: score it with the unmodified evaluator on DEKOIS; test.py
+# loads with strict=False and warns "checkpoint/architecture mismatch" on any key difference
+K=~/causalbind_save/A3_smoke/causalbind_sp_seed1/savedir/checkpoint_last.pt
+ls -l ~/causalbind_save/A3_smoke/causalbind_sp_seed1/savedir
+sha256sum $K | tee ~/causalbind_logs/A3_ckpt_sha256.txt
+date | tee ~/causalbind_logs/A3_reload_DEKOIS.log
+bash scripts/test.sh sp DEKOIS $K results/A3_smoke_DEKOIS 2>&1 | tee -a ~/causalbind_logs/A3_reload_DEKOIS.log
+echo "exit ${PIPESTATUS[0]}" | tee -a ~/causalbind_logs/A3_reload_DEKOIS.log
+date | tee -a ~/causalbind_logs/A3_reload_DEKOIS.log
+grep -c "checkpoint/architecture mismatch" ~/causalbind_logs/A3_reload_DEKOIS.log || true
+
+# A3.11 (local) the corrected check_index_cache.py (commit d834484) to the instance
+rsync -av -e "ssh -p 10970" ~/Intro2DS/submissions/03-causalbind/code/check_index_cache.py root@192.165.134.28:~/Intro2DS/submissions/03-causalbind/code/
+# (instance) the released index files against the LMDBs, and against the files train_task.py rebuilt
+cd ~/CausalBind
+python $C/check_index_cache.py data/train_lig_all_blend.lmdb data/mol_smi2idx_train_blend.json smi 2000 1 2>&1 | tee ~/causalbind_logs/A3_index_check.txt
+python $C/check_index_cache.py data/train_prot_all_blend.lmdb data/pocket_name2idx_train_blend.json pocket 2000 1 2>&1 | tee -a ~/causalbind_logs/A3_index_check.txt
+for f in mol_smi2idx_train_blend.json pocket_name2idx_train_blend.json; do cmp ~/causalbind_smoke_data/cache/$f data/$f && echo "$f: rebuilt by train_task.py, identical to the released file"; done | tee -a ~/causalbind_logs/A3_index_check.txt
+
+# A3.12 log.txt and the environment logs, then (local) copy the results back; instance destroyed
+cp ~/env_create.log ~/unicore_install.log ~/causalbind_logs/
+mv ~/causalbind_logs/env_create.log ~/causalbind_logs/A3_env_create.log
+mv ~/causalbind_logs/unicore_install.log ~/causalbind_logs/A3_unicore_install.log
+cd ~/Intro2DS/submissions/03-causalbind
+for f in A3_smoke A3_reload_DEKOIS; do echo "==== ~/causalbind_logs/$f.log ===="; cat ~/causalbind_logs/$f.log; done > A3_smoke/log.txt
+ls -la A3_smoke ~/causalbind_logs
+date -u
+exit
+rsync -av -e "ssh -p 10970" root@192.165.134.28:~/Intro2DS/submissions/03-causalbind/A3_smoke ~/Intro2DS/submissions/03-causalbind/
+rsync -av -e "ssh -p 10970" root@192.165.134.28:~/causalbind_logs/ ~/causalbind_logs/
 
 # ---- B: full retrain on the released training data ----------------------------------------
 
